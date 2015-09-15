@@ -6,7 +6,8 @@
   :plugins [[lein-cljsbuild "1.0.6"]
             [lein-figwheel "0.3.8-SNAPSHOT"]]
   :dependencies [[org.clojure/clojure "1.7.0"]
-                 [org.clojure/clojurescript "1.7.122"]]
+                 [org.clojure/clojurescript "1.7.122"]
+                 [reagent "0.5.0"]]
 
   :source-paths ["src"]
 

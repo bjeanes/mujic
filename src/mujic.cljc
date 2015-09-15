@@ -1,8 +1,20 @@
 (ns mujic
-  (:require [clojure.set :as set])
-  #?(:cljs (:require-macros [mujic :refer [defintervals]])))
+  (:require [clojure.set :as set]
+            [clojure.string :as str]
+            #?(:cljs [reagent.core
+                      :as r
+                      :refer [render]]))
+  #?@(:cljs [(:require-macros [mujic :refer [defintervals]])
+             (:refer-clojure :exclude [atom])]))
 
-#?(:cljs (enable-console-print!))
+#?(:cljs
+   (do (enable-console-print!)
+       (def ratom r/atom))
+
+   :clj
+   (do
+     (defmacro render [& args])
+     (def ratom atom)))
 
 (def ordered-notes
   ;; I'm using actual flat (♭) and sharp (♯) symbols because this
@@ -40,7 +52,7 @@
     (map (partial nth coll) indices)))
 
 (take-nths [3 1 1 4] [1 2 3 4 5 6 7 8 9 10])
-;=> (1 4 5 6 10)
+;;=> (1 4 5 6 10)
 
 (count (take 20 ordered-notes))           ;=> 12
 (take-nths (scales :major) ordered-notes) ;!! java.jang.IndexOutOfBoundsException
@@ -221,6 +233,36 @@ M2 ;=> 2
   nil
   (def c 3)))
 
+(defn intervals-in-major-scale-component []
+  (let [tonic (ratom :C)
+        major (partial scale :major)
+        fmt (fn
+              ([t]   (str/join "/" (map name t)))
+              ([t n] (str/join "/" (map #(str (name %) n)
+                                        t))))]
+    (fn []
+      (let [scale (major @tonic)
+            tri-tone (nth (note-series @tonic) 6)
+            [front back] (split-at 4 scale)]
+        [:table
+         [:thead
+          [:tr
+           [:th "Interval"]
+           [:th (fmt (nth scale 0) 0)]
+           [:th (fmt (nth scale 1))]
+           [:th (fmt (nth scale 2))]
+           [:th (fmt (nth scale 3))]
+           [:th [:i (str "(" (fmt tri-tone) ")")]]
+           [:th (fmt (nth scale 4))]
+           [:th (fmt (nth scale 5))]
+           [:th (fmt (nth scale 6))]
+           [:th (fmt (nth scale 7) 1)]
+           ]
+          #_(vec (concat [:tr [:th "Interval"]]
+                         (map fmt front)
+                         [(fmt tri-tone)]
+                         (map fmt back)))]]))))
+
 (defn invert* [t] (- P8 t))
 (def invert (comp interval-names invert*))
 
@@ -304,3 +346,24 @@ scale-chords ;=> {:M {:mode/ionian (1 3 5), ...}, :m/M7 {:minor/melodic (1 3 5 7
 (def guitar
   (map (comp (partial take 24) note-series)
        [:E :A :D :G :B :E]))
+
+#?(:cljs
+   ;; For every function defined in current namespace which ends in
+   ;; `-component`, wire it up as a Reagent component to a DOM element of the
+   ;; same ID.
+   ;;
+   ;; Must be at end of file because ns-interns is a macro
+   (.addEventListener
+    js/document
+    "DOMContentLoaded"
+    (fn []
+      (let [intern-kv (ns-interns 'mujic)
+            component-keys (filter (comp (partial re-find #"-component$")
+                                         name)
+                                   (keys intern-kv))]
+        (doseq [k component-keys
+                :let [f @(k intern-kv)
+                      e (.getElementById js/document
+                                         (name k))]]
+          (when e
+            (render [f] e)))))))
