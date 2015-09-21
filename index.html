@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html>
+<head>
+<!-- 2015-09-21 Mon 19:15 -->
+<meta  charset="utf-8">
+<meta  name="viewport" content="width=device-width, initial-scale=1">
+<title>Mujic: Learning Music Theory With Clojure</title>
+<meta  name="generator" content="Org-mode">
+<meta  name="author" content="Bo Jeanes">
+<style>
+body { font-family: "Helvetica Neue", "Helvetica", sans-serif; }
+div#content { max-width: 600px; margin: auto; }
+table { margin: auto; }
+div.org-src-container pre.src {
+/*background-color: #272822;
+color: #fff;*/
+font-weight: 100;
+font-family: "Source Code Pro", "Inconsolata", "Monaco", monospace;
+overflow-x: auto;
+padding-top: 8pt;
+}
+</style>
+<script src="mujic.js"></script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">Mujic: Learning Music Theory With Clojure</h1>
+
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1">Preamble</h2>
+<div class="outline-text-2" id="text-orgheadline1">
+<p>
+I've played guitar since I was about 7 years old. Like many casual musicians, my
+interest and focus has waxed and waned over those years and, consequently, my
+skill level plateaued sometime before I was 18. Every time that I've been
+inspired to play a lot more, it lasts only as long as it takes for me to hit
+that same plateau threshold; that is, my frustration understanding how music
+really worked diminishes (<a href="https://en.wikipedia.org/wiki/Diminished_triad">rimshot</a>) my interest.
+</p>
+
+<p>
+The feeling of really grokking music theory has always eluded me. Every time
+that I have tried to learn some music theory, it just felt like a house of cards
+built on memorising labels and rules, each with an abundance of special cases
+and exceptions. Every bit of theory I managed to learn in the past would slip
+away just as quickly because the foundation wasn't sturdy.
+</p>
+
+<p>
+Since I've been really missing working with Clojure, I decided to try to learn
+music theory by using Clojure to explore the relationships between different
+concepts (notes, intervals, scales, modes, chords). Approaching music theory as
+if it were any other unknown domain that I had to model in code should help me
+really understand and formalise how things work and hopefully let it stick in my
+head.
+</p>
+
+<p>
+This post serves as my logbook and worksheet for the experiment. As such, it
+preserves any understandings which are incorrect or incomplete and subsequent
+re-understandings of concepts are appended. I will retroactively edit earlier
+sections to make them clearer or easier to refer to later, though.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline2" class="outline-2">
+<h2 id="orgheadline2">Logbook</h2>
+<div class="outline-text-2" id="text-orgheadline2">
+<p>
+It seems obvious that I need some concept of the usable (Western music) notes
+and their order, so I'll start there:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">def</span> <span class="org-variable-name">ordered-notes</span>
+  <span class="org-comment-delimiter">;; </span><span class="org-comment">I'm using actual flat (&#9837;) and sharp (&#9839;) symbols because this</span>
+  <span class="org-comment-delimiter">;; </span><span class="org-comment">project is for fun and I have working auto-complete.</span>
+  <span class="org-comment-delimiter">;; </span><span class="org-comment">Practicality be damned!</span>
+  <span class="org-rainbow-delimiters-depth-2">[</span>#<span class="org-rainbow-delimiters-depth-3">{</span><span class="org-clojure-keyword">:C</span><span class="org-rainbow-delimiters-depth-3">}</span> #<span class="org-rainbow-delimiters-depth-3">{</span><span class="org-clojure-keyword">:C&#9839;</span> <span class="org-clojure-keyword">:D&#9837;</span><span class="org-rainbow-delimiters-depth-3">}</span>
+   #<span class="org-rainbow-delimiters-depth-3">{</span><span class="org-clojure-keyword">:D</span><span class="org-rainbow-delimiters-depth-3">}</span> #<span class="org-rainbow-delimiters-depth-3">{</span><span class="org-clojure-keyword">:D&#9839;</span> <span class="org-clojure-keyword">:E&#9837;</span><span class="org-rainbow-delimiters-depth-3">}</span>
+   #<span class="org-rainbow-delimiters-depth-3">{</span><span class="org-clojure-keyword">:E</span><span class="org-rainbow-delimiters-depth-3">}</span>
+   #<span class="org-rainbow-delimiters-depth-3">{</span><span class="org-clojure-keyword">:F</span><span class="org-rainbow-delimiters-depth-3">}</span> #<span class="org-rainbow-delimiters-depth-3">{</span><span class="org-clojure-keyword">:F&#9839;</span> <span class="org-clojure-keyword">:G&#9837;</span><span class="org-rainbow-delimiters-depth-3">}</span>
+   #<span class="org-rainbow-delimiters-depth-3">{</span><span class="org-clojure-keyword">:G</span><span class="org-rainbow-delimiters-depth-3">}</span> #<span class="org-rainbow-delimiters-depth-3">{</span><span class="org-clojure-keyword">:G&#9839;</span> <span class="org-clojure-keyword">:A&#9837;</span><span class="org-rainbow-delimiters-depth-3">}</span>
+   #<span class="org-rainbow-delimiters-depth-3">{</span><span class="org-clojure-keyword">:A</span><span class="org-rainbow-delimiters-depth-3">}</span> #<span class="org-rainbow-delimiters-depth-3">{</span><span class="org-clojure-keyword">:A&#9839;</span> <span class="org-clojure-keyword">:B&#9837;</span><span class="org-rainbow-delimiters-depth-3">}</span>
+   #<span class="org-rainbow-delimiters-depth-3">{</span><span class="org-clojure-keyword">:B</span><span class="org-rainbow-delimiters-depth-3">}</span><span class="org-rainbow-delimiters-depth-2">]</span><span class="org-rainbow-delimiters-depth-1">)</span>
+</pre>
+</div>
+
+<p>
+I've modelled the notes as a vector of sets. Each set spells out the valid
+identifiers for that note. At this point, I'm not sure that this model of the
+keys will be ideal&#x2014;in particular, I may need to treat flats (♭) and sharps (♯)
+distinctly based on context&#x2014;but it suffices for the time being.
+</p>
+
+<p>
+My exploration with music theory in the past left me with the impression that
+scales acted as a kind of sieve to highlight specific notes from all notes and
+that chords acted as sieves over specific scales to further highlight specific
+notes.
+</p>
+
+<p>
+With that vague semblance, I pursue modelling this understanding. Scales are
+usually defined in terms of number of semitone steps:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">def</span> <span class="org-variable-name">h</span>  <span class="org-highlight-numbers-number">1</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-comment">; half step</span>
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">def</span> <span class="org-variable-name">W</span>  <span class="org-highlight-numbers-number">2</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-comment">; whole step</span>
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">def</span> <span class="org-variable-name">Wh</span> <span class="org-highlight-numbers-number">3</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-comment">; whole-and-half step</span>
+
+<span class="org-comment-delimiter">;; </span><span class="org-comment">just a few common scales will do for now</span>
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">def</span> <span class="org-variable-name">scales</span> <span class="org-rainbow-delimiters-depth-2">{</span><span class="org-clojure-keyword">:major</span>          <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-constant">W</span> <span class="org-constant">W</span> h <span class="org-constant">W</span> <span class="org-constant">W</span> <span class="org-constant">W</span> h<span class="org-rainbow-delimiters-depth-3">]</span>
+             <span class="org-clojure-keyword">:minor/natural</span>  <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-constant">W</span> h <span class="org-constant">W</span> <span class="org-constant">W</span> h <span class="org-constant">W</span> <span class="org-constant">W</span><span class="org-rainbow-delimiters-depth-3">]</span>
+             <span class="org-clojure-keyword">:minor/harmonic</span> <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-constant">W</span> h <span class="org-constant">W</span> <span class="org-constant">W</span> h <span class="org-type">Wh</span> h<span class="org-rainbow-delimiters-depth-3">]</span><span class="org-rainbow-delimiters-depth-2">}</span><span class="org-rainbow-delimiters-depth-1">)</span>
+</pre>
+</div>
+
+<div id="scales-sieve-component"></div>
+
+<p>
+Now, I need a way to pick items from a list based on these steps, which I think
+of as relative indices. I have a sense that this might be a generically
+applicable operation so I'll write it generically (this type of operation may
+very well already exist, but I can explore that later):
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">take-nths</span>
+  <span class="org-doc">"Takes a collection and returns the values of each interval</span>
+<span class="org-doc">  from the previous value (or start). Always includes the first</span>
+<span class="org-doc">  item.</span>
+
+<span class="org-doc">  Named due to similarity with take-nth, with stable n:</span>
+
+<span class="org-doc">      (take-nth          2  (range)) ;=&gt; (0 2 4 6 8 10 ...)</span>
+<span class="org-doc">      (take-nths (repeat 2) (range)) ;=&gt; (0 2 4 6 8 10 ...)</span>
+<span class="org-doc">  "</span>
+  <span class="org-rainbow-delimiters-depth-2">[</span>ns coll<span class="org-rainbow-delimiters-depth-2">]</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-keyword">let</span> <span class="org-rainbow-delimiters-depth-3">[</span>indices <span class="org-rainbow-delimiters-depth-4">(</span>reductions + <span class="org-highlight-numbers-number">0</span> ns<span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">]</span>
+    <span class="org-rainbow-delimiters-depth-3">(</span>map <span class="org-rainbow-delimiters-depth-4">(</span>partial nth coll<span class="org-rainbow-delimiters-depth-4">)</span> indices<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+</pre>
+</div>
+
+<p>
+Here's how that behaves:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">(</span>take-nths <span class="org-rainbow-delimiters-depth-2">[</span><span class="org-highlight-numbers-number">3</span> <span class="org-highlight-numbers-number">1</span> <span class="org-highlight-numbers-number">1</span> <span class="org-highlight-numbers-number">4</span><span class="org-rainbow-delimiters-depth-2">]</span> <span class="org-rainbow-delimiters-depth-2">[</span><span class="org-highlight-numbers-number">1</span> <span class="org-highlight-numbers-number">2</span> <span class="org-highlight-numbers-number">3</span> <span class="org-highlight-numbers-number">4</span> <span class="org-highlight-numbers-number">5</span> <span class="org-highlight-numbers-number">6</span> <span class="org-highlight-numbers-number">7</span> <span class="org-highlight-numbers-number">8</span> <span class="org-highlight-numbers-number">9</span> <span class="org-highlight-numbers-number">10</span><span class="org-rainbow-delimiters-depth-2">]</span><span class="org-rainbow-delimiters-depth-1">)</span>
+<span class="org-comment-delimiter">;;</span><span class="org-comment">=&gt; (1 4 5 6 10)</span>
+</pre>
+</div>
+
+<p>
+Because the scale definition includes the interval to reach the octave, I'll use
+<code>cycle</code> to give it an infinite number of notes for the scale to select:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">(</span>count <span class="org-rainbow-delimiters-depth-2">(</span>take <span class="org-highlight-numbers-number">20</span> ordered-notes<span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>           <span class="org-comment">;=&gt; 12</span>
+<span class="org-rainbow-delimiters-depth-1">(</span>take-nths <span class="org-rainbow-delimiters-depth-2">(</span>scales <span class="org-clojure-keyword">:major</span><span class="org-rainbow-delimiters-depth-2">)</span> ordered-notes<span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-comment">;!! java.jang.IndexOutOfBoundsException</span>
+
+<span class="org-rainbow-delimiters-depth-1">(</span>count <span class="org-rainbow-delimiters-depth-2">(</span>take <span class="org-highlight-numbers-number">20</span> <span class="org-rainbow-delimiters-depth-3">(</span>cycle ordered-notes<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>           <span class="org-comment">;=&gt; 20</span>
+<span class="org-rainbow-delimiters-depth-1">(</span>take-nths <span class="org-rainbow-delimiters-depth-2">(</span>scales <span class="org-clojure-keyword">:major</span><span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">(</span>cycle ordered-notes<span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-comment">;=&gt; (#{:C} #{:D} #{:E} #{:F} #{:G} #{:A} #{:B} #{:C})</span>
+</pre>
+</div>
+
+<p>
+Since this needs a cycling notion of the available notes and I'll surely need it
+later for chords with super-octave notes (9th, 11th, 13th, etc), I'll create a
+function to return an infinite list of notes, starting with a specific note (<b>C</b>
+if not specified):
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-clojure"><span class="org-comment-delimiter">;; </span><span class="org-comment">convenience list of all valid note names</span>
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">def</span> <span class="org-variable-name">note-names</span> <span class="org-rainbow-delimiters-depth-2">(</span>apply <span class="org-type">set</span>/union ordered-notes<span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">note-series</span>
+  <span class="org-doc">"Returns an infinite sequence of chromatic notes starting</span>
+<span class="org-doc">  with :C or the provided `</span><span class="org-doc"><span class="org-constant">start</span></span><span class="org-doc">` note"</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-rainbow-delimiters-depth-3">[]</span> <span class="org-rainbow-delimiters-depth-3">(</span>note-series <span class="org-clojure-keyword">:C</span><span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-rainbow-delimiters-depth-3">[</span>root<span class="org-rainbow-delimiters-depth-3">]</span>
+   <span class="org-rainbow-delimiters-depth-3">(</span><span class="org-keyword">when-let</span> <span class="org-rainbow-delimiters-depth-4">[</span>root <span class="org-rainbow-delimiters-depth-5">(</span>note-names root<span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">]</span>
+     <span class="org-rainbow-delimiters-depth-4">(</span>drop-while <span class="org-rainbow-delimiters-depth-5">(</span>complement root<span class="org-rainbow-delimiters-depth-5">)</span>
+                 <span class="org-rainbow-delimiters-depth-5">(</span>cycle ordered-notes<span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+</pre>
+</div>
+
+<p>
+(side-note: super valuable to put <code>{:user :global-vars {*print-length* 103
+*print-level* 15}}</code> in your <code>~/.lein/profiles</code> file so that you don't
+accidentally print an infinite list in the REPL and have it hang!)
+</p>
+
+<p>
+Likely, the "infinite sequence of notes" model is a stopgap until I can tie in
+the octave of the note into the representation (e.g. with <a href="https://en.wikipedia.org/wiki/Scientific_pitch_notation">scientific pitch
+notation</a>).
+</p>
+
+<p>
+OK, so now I can come back to building scales by sieving all possible notes from
+a root:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">(</span>take-nths <span class="org-rainbow-delimiters-depth-2">(</span>scales <span class="org-clojure-keyword">:minor/natural</span><span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">(</span>note-series <span class="org-clojure-keyword">:A</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+<span class="org-comment-delimiter">;;</span><span class="org-comment">=&gt; (#{:A} #{:B} #{:C} #{:D} #{:E} #{:F} #{:G} #{:A})</span>
+</pre>
+</div>
+
+<p>
+I can anticipate that repeating scales (using <code>cycle</code>, as with the note series)
+which means that the root note, which is in both first and 8th position, will
+appear twice in a row:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">(</span>cycle '<span class="org-rainbow-delimiters-depth-2">(</span>#<span class="org-rainbow-delimiters-depth-3">{</span><span class="org-clojure-keyword">:A</span><span class="org-rainbow-delimiters-depth-3">}</span> #<span class="org-rainbow-delimiters-depth-3">{</span><span class="org-clojure-keyword">:B</span><span class="org-rainbow-delimiters-depth-3">}</span> #<span class="org-rainbow-delimiters-depth-3">{</span><span class="org-clojure-keyword">:C</span><span class="org-rainbow-delimiters-depth-3">}</span> #<span class="org-rainbow-delimiters-depth-3">{</span><span class="org-clojure-keyword">:D</span><span class="org-rainbow-delimiters-depth-3">}</span> #<span class="org-rainbow-delimiters-depth-3">{</span><span class="org-clojure-keyword">:E</span><span class="org-rainbow-delimiters-depth-3">}</span> #<span class="org-rainbow-delimiters-depth-3">{</span><span class="org-clojure-keyword">:F</span><span class="org-rainbow-delimiters-depth-3">}</span> #<span class="org-rainbow-delimiters-depth-3">{</span><span class="org-clojure-keyword">:G</span><span class="org-rainbow-delimiters-depth-3">}</span> #<span class="org-rainbow-delimiters-depth-3">{</span><span class="org-clojure-keyword">:A</span><span class="org-rainbow-delimiters-depth-3">}</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+<span class="org-comment-delimiter">;;</span><span class="org-comment">=&gt; (#{:A} #{:B} #{:C} #{:D} #{:E} #{:F} #{:G} #{:A} #{:A} #{:B} #{:C} ...)</span>
+<span class="org-comment-delimiter">;;                                                 </span><span class="org-comment">^ 2x  ^</span>
+</pre>
+</div>
+
+<p>
+I'll tackle that later when it comes up, though.
+</p>
+
+<p>
+Here is my new <code>scale</code> function:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">scale</span>
+  <span class="org-doc">"Return the sequence of notes for the specified scale and tonic"</span>
+  <span class="org-rainbow-delimiters-depth-2">[</span>scale tonic<span class="org-rainbow-delimiters-depth-2">]</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span>take-nths <span class="org-rainbow-delimiters-depth-3">(</span>scales scale<span class="org-rainbow-delimiters-depth-3">)</span> <span class="org-rainbow-delimiters-depth-3">(</span>note-series tonic<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+
+<span class="org-comment-delimiter">;; </span><span class="org-comment">arguments are in that order so its amenable to currying:</span>
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">def</span> <span class="org-variable-name">major-scale</span> <span class="org-rainbow-delimiters-depth-2">(</span>partial scale <span class="org-clojure-keyword">:major</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+<span class="org-rainbow-delimiters-depth-1">(</span>major-scale <span class="org-clojure-keyword">:C</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-comment">;=&gt; (#{:C} #{:D} #{:E} #{:F} #{:G} #{:A} #{:B} #{:C})</span>
+</pre>
+</div>
+
+<p>
+As I mentioned above, I've always thought of chords as a "sieve" over their
+scale. In some contexts, this is obvious. The major triad is <a href="http://www.smithfowler.org/music/Chord_Formulas.htm">defined as <b>1 3 5</b></a>
+of the major scale, for example.
+</p>
+
+<p>
+Interestingly, a minor triad is typically in terms of the major scale too. It is
+<a href="http://www.smithfowler.org/music/Chord_Formulas.htm">represented as <b>1 ♭3 5</b></a>. This is one of those things that seemed like an
+exception and special case in my past&#x2014;just more memorisation. However, playing
+around in code let me discover that it's also <b>1 3 5</b> of a minor scale. This
+property allows me to use these intervals as 1-based indexes of the scale and
+feels like a beautiful musical property&#x2014;one I'll likely remember:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-clojure"><span class="org-comment-delimiter">;; </span><span class="org-comment">Just a few chords for now will do. We'll map a chord</span>
+<span class="org-comment-delimiter">;; </span><span class="org-comment">name to a scale and the notes from the scale to use.</span>
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">def</span> <span class="org-variable-name">chords</span>
+  <span class="org-rainbow-delimiters-depth-2">{</span><span class="org-clojure-keyword">:M</span>  <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-clojure-keyword">:major</span>         <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-highlight-numbers-number">1</span> <span class="org-highlight-numbers-number">3</span> <span class="org-highlight-numbers-number">5</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">]</span>
+   <span class="org-clojure-keyword">:M7</span> <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-clojure-keyword">:major</span>         <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-highlight-numbers-number">1</span> <span class="org-highlight-numbers-number">3</span> <span class="org-highlight-numbers-number">5</span> <span class="org-highlight-numbers-number">7</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">]</span>
+   <span class="org-clojure-keyword">:m</span>  <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-clojure-keyword">:minor/natural</span> <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-highlight-numbers-number">1</span> <span class="org-highlight-numbers-number">3</span> <span class="org-highlight-numbers-number">5</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">]</span>
+   <span class="org-clojure-keyword">:m7</span> <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-clojure-keyword">:minor/natural</span> <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-highlight-numbers-number">1</span> <span class="org-highlight-numbers-number">3</span> <span class="org-highlight-numbers-number">5</span> <span class="org-highlight-numbers-number">7</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">]</span><span class="org-rainbow-delimiters-depth-2">}</span><span class="org-rainbow-delimiters-depth-1">)</span>
+</pre>
+</div>
+
+<p>
+This exploration helped throw some light on the relationship between scales and
+chords, which is exactly the point.
+</p>
+
+<p>
+To get the notes in a chord, I'll define a new function which takes a chord
+identifier and a root note:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">chord</span>
+  <span class="org-rainbow-delimiters-depth-2">[</span>chord root<span class="org-rainbow-delimiters-depth-2">]</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-keyword">let</span> <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-rainbow-delimiters-depth-4">[</span>scale-name idxs<span class="org-rainbow-delimiters-depth-4">]</span> <span class="org-rainbow-delimiters-depth-4">(</span>chords chord<span class="org-rainbow-delimiters-depth-4">)</span>
+        scale <span class="org-rainbow-delimiters-depth-4">(</span>scale scale-name root<span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">]</span>
+    <span class="org-rainbow-delimiters-depth-3">(</span>map <span class="org-rainbow-delimiters-depth-4">(</span>comp <span class="org-rainbow-delimiters-depth-5">(</span>partial nth scale<span class="org-rainbow-delimiters-depth-5">)</span> dec<span class="org-rainbow-delimiters-depth-4">)</span> <span class="org-comment">; dec so 0-indexed</span>
+         idxs<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+
+<span class="org-comment-delimiter">;; </span><span class="org-comment">arguments are in that order so its amenable to currying:</span>
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">def</span> <span class="org-variable-name">minor-7th</span> <span class="org-rainbow-delimiters-depth-2">(</span>partial chord <span class="org-clojure-keyword">:m7</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+<span class="org-rainbow-delimiters-depth-1">(</span>minor-7th <span class="org-clojure-keyword">:C</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-comment">;=&gt; (#{:C} #{:D&#9839; :E&#9837;} #{:G} #{:A&#9839; :B&#9837;})</span>
+</pre>
+</div>
+
+<p>
+I defined a few dozen chords like this in terms of the scales whose structures I
+had defined earlier. Eventually, the process of converting typical notation (<b>1
+♭3 5</b>) into my notation (<b>1 3 5</b> in natural minor) to be quite difficult for
+some chords. I kept having to mentally convert the typical notation into notes
+for a <b>C</b> chord then pattern match a <b>C</b> scale that had all those notes. This is
+mentally taxing, because I haven't defined my scales in those terms yet.
+</p>
+
+<p>
+I'll explore two such chords which drove the need to introduce a new scale and
+to explore <a href="https://en.wikibooks.org/wiki/Music_Theory/Modes">modes</a>. Later, I'll go back and re-model chords to avoid this mental
+taxation.
+</p>
+
+<p>
+The <b>m6</b> (minor sixth) chord is typically defined in terms of the major scale as
+<b>1 ♭3 5 6</b>. If I compare the major scale intervals with the two minors that I
+have defined, I can see that both of the defined minors flatten the <b>6th</b>. The
+<b>6</b> in terms of either minor scale would be incorrect, and I'd have a different
+chord:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">scale-degrees</span>
+  <span class="org-rainbow-delimiters-depth-2">[</span>tonic scale-name<span class="org-rainbow-delimiters-depth-2">]</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span>map-indexed #<span class="org-rainbow-delimiters-depth-3">(</span>list <span class="org-rainbow-delimiters-depth-4">(</span>inc <span class="org-variable-name">%1</span><span class="org-rainbow-delimiters-depth-4">)</span> <span class="org-rainbow-delimiters-depth-4">(</span>last <span class="org-variable-name">%2</span><span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">)</span>
+               <span class="org-rainbow-delimiters-depth-3">(</span>scale scale-name tonic<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+
+<span class="org-rainbow-delimiters-depth-1">(</span>scale-degrees <span class="org-clojure-keyword">:C</span> <span class="org-clojure-keyword">:major</span><span class="org-rainbow-delimiters-depth-1">)</span>
+<span class="org-comment-delimiter">;;</span><span class="org-comment">=&gt; ((1 :C) (2 :D) (3 :E) (4 :F) (5 :G) (6 :A) (7 :B) (8 :C))</span>
+
+<span class="org-rainbow-delimiters-depth-1">(</span>scale-degrees <span class="org-clojure-keyword">:C</span> <span class="org-clojure-keyword">:minor/natural</span><span class="org-rainbow-delimiters-depth-1">)</span>
+<span class="org-comment-delimiter">;;</span><span class="org-comment">=&gt; ((1 :C) (2 :D) (3 :E&#9837;) (4 :F) (5 :G) (6 :A&#9837;) (7 :B&#9837;) (8 :C))</span>
+
+<span class="org-rainbow-delimiters-depth-1">(</span>scale-degrees <span class="org-clojure-keyword">:C</span> <span class="org-clojure-keyword">:minor/harmonic</span><span class="org-rainbow-delimiters-depth-1">)</span>
+<span class="org-comment-delimiter">;;</span><span class="org-comment">=&gt; ((1 :C) (2 :D) (3 :E&#9837;) (4 :F) (5 :G) (6 :A&#9837;) (7 :B) (8 :C))</span>
+</pre>
+</div>
+
+<p>
+<b>1 ♭3 5 6</b> from the major scale would be <b>C E♭ G A</b> but both minor scales have
+an <b>A♭</b> instead. Luckily, there is a minor scale, the <a href="https://en.wikipedia.org/wiki/Minor_scale#Melodic_minor_scale">melodic minor</a>, which has
+an <b>A</b>, so I'll add that to my defined scales:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">def</span> <span class="org-variable-name">scales</span> <span class="org-rainbow-delimiters-depth-2">{</span><span class="org-clojure-keyword">:major</span>          <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-constant">W</span> <span class="org-constant">W</span> h <span class="org-constant">W</span> <span class="org-constant">W</span> <span class="org-constant">W</span> h<span class="org-rainbow-delimiters-depth-3">]</span>
+             <span class="org-clojure-keyword">:minor/natural</span>  <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-constant">W</span> h <span class="org-constant">W</span> <span class="org-constant">W</span> h <span class="org-constant">W</span> <span class="org-constant">W</span><span class="org-rainbow-delimiters-depth-3">]</span>
+             <span class="org-clojure-keyword">:minor/harmonic</span> <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-constant">W</span> h <span class="org-constant">W</span> <span class="org-constant">W</span> h <span class="org-type">Wh</span> h<span class="org-rainbow-delimiters-depth-3">]</span>
+             <span class="org-clojure-keyword">:minor/melodic</span>  <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-constant">W</span> h <span class="org-constant">W</span> <span class="org-constant">W</span> <span class="org-constant">W</span> <span class="org-constant">W</span> h<span class="org-rainbow-delimiters-depth-3">]</span><span class="org-rainbow-delimiters-depth-2">}</span><span class="org-rainbow-delimiters-depth-1">)</span>
+</pre>
+</div>
+
+<p>
+The melodic minor is a bit special because, in melodies, it's only played in
+ascending order. When descending, the natural minor is used instead, though it
+can be referred to as the descending melodic minor scale. For our purposes of
+chord construction, this doesn't seem relevant, so I'll conveniently just treat
+it as a normal scale. Here it is, compared to the major:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">(</span>scale-degrees <span class="org-clojure-keyword">:C</span> <span class="org-clojure-keyword">:major</span><span class="org-rainbow-delimiters-depth-1">)</span>
+<span class="org-comment-delimiter">;;</span><span class="org-comment">=&gt; ((1 :C) (2 :D) (3 :E) (4 :F) (5 :G) (6 :A) (7 :B) (8 :C))</span>
+
+<span class="org-rainbow-delimiters-depth-1">(</span>scale-degrees <span class="org-clojure-keyword">:C</span> <span class="org-clojure-keyword">:minor/melodic</span><span class="org-rainbow-delimiters-depth-1">)</span>
+<span class="org-comment-delimiter">;;</span><span class="org-comment">=&gt; ((1 :C) (2 :D) (3 :E&#9837;) (4 :F) (5 :G) (6 :A) (7 :B) (8 :C))</span>
+</pre>
+</div>
+
+<p>
+Note the 6th note is natural (♮ not ♭ or ♯). After all that work, I can finally
+add the <b>m6</b> chord to the chord definitions:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">def</span> <span class="org-variable-name">chords</span>
+  <span class="org-rainbow-delimiters-depth-2">{</span><span class="org-clojure-keyword">:M</span>  <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-clojure-keyword">:major</span>         <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-highlight-numbers-number">1</span> <span class="org-highlight-numbers-number">3</span> <span class="org-highlight-numbers-number">5</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">]</span>
+   <span class="org-clojure-keyword">:M7</span> <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-clojure-keyword">:major</span>         <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-highlight-numbers-number">1</span> <span class="org-highlight-numbers-number">3</span> <span class="org-highlight-numbers-number">5</span> <span class="org-highlight-numbers-number">7</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">]</span>
+   <span class="org-clojure-keyword">:m</span>  <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-clojure-keyword">:minor/natural</span> <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-highlight-numbers-number">1</span> <span class="org-highlight-numbers-number">3</span> <span class="org-highlight-numbers-number">5</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">]</span>
+   <span class="org-clojure-keyword">:m7</span> <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-clojure-keyword">:minor/natural</span> <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-highlight-numbers-number">1</span> <span class="org-highlight-numbers-number">3</span> <span class="org-highlight-numbers-number">5</span> <span class="org-highlight-numbers-number">7</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">]</span>
+   <span class="org-comment-delimiter">;; </span><span class="org-comment">...</span>
+   <span class="org-clojure-keyword">:m6</span> <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-clojure-keyword">:minor/melodic</span> <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-highlight-numbers-number">1</span> <span class="org-highlight-numbers-number">3</span> <span class="org-highlight-numbers-number">5</span> <span class="org-highlight-numbers-number">6</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">]</span><span class="org-rainbow-delimiters-depth-2">}</span><span class="org-rainbow-delimiters-depth-1">)</span>
+</pre>
+</div>
+
+<p>
+The next chord that I struggled with is the <b>M7#11</b>. The 11th degree of a
+<a href="https://en.wikipedia.org/wiki/Diatonic_scale">diatonic scale</a> (7-note scales) is the same note as the 4th, just an octave
+higher. So to tackle a <b>M7#11</b> chord, I need a scale which has a <b>♯4</b> in it. I
+sat down at the piano and played a major scale with a sharpened 4th to see how
+it sounded. It was nice! A combination of my foggy memory of <a href="https://en.wikibooks.org/wiki/Music_Theory/Modes">modes</a> and some
+Wikipedia spelunking led me to the <a href="https://en.wikipedia.org/wiki/Lydian_mode">lydian mode</a>, which is a major scale with a
+<b>♯4</b>. Perfect.
+</p>
+
+<p>
+It turns out that modes can be thought of as "rotations" of an existing scale.
+That is, rotating the C major scale (<b>C D E F G A B</b>) a degree gives a new scale
+with the same notes (<b>D E F G A B C</b>). Typically, when modes are mentioned, the
+modes based on the 7 degrees of a major scale are implied, though they can be
+based on other scales, <a href="https://en.wikipedia.org/wiki/Jazz_scale#Modes_of_the_melodic_minor_scale">such as the melodic minor scale</a> or <a href="http://docs.solfege.org/3.22/C/scales/har.html">harmonic minor scale</a>.
+Since this definition seems important and interesting, instead of writing out
+all the modes as I have done for other scales, it seems relevant and important
+to encode this relationship between modes and scales in code.
+</p>
+
+<p>
+After a few iterations, I came up with some generic functions (prior
+implementations likely exist):
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">rotate</span>
+  <span class="org-doc">"Moves n elements in s from the front to the back."</span>
+  <span class="org-rainbow-delimiters-depth-2">[</span>n s<span class="org-rainbow-delimiters-depth-2">]</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-keyword">let</span> <span class="org-rainbow-delimiters-depth-3">[</span>shift <span class="org-rainbow-delimiters-depth-4">(</span>mod n <span class="org-rainbow-delimiters-depth-5">(</span>count s<span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">]</span>
+    <span class="org-rainbow-delimiters-depth-3">(</span>concat <span class="org-rainbow-delimiters-depth-4">(</span>drop shift s<span class="org-rainbow-delimiters-depth-4">)</span>
+            <span class="org-rainbow-delimiters-depth-4">(</span>take shift s<span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">rotations</span>
+  <span class="org-doc">"Returns a sequence generated by rotating finite</span>
+<span class="org-doc">  sequence s repeatedly until the original order is</span>
+<span class="org-doc">  encountered."</span>
+  <span class="org-rainbow-delimiters-depth-2">[</span>s<span class="org-rainbow-delimiters-depth-2">]</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span>take <span class="org-rainbow-delimiters-depth-3">(</span>count s<span class="org-rainbow-delimiters-depth-3">)</span>
+        <span class="org-rainbow-delimiters-depth-3">(</span>iterate <span class="org-rainbow-delimiters-depth-4">(</span>partial rotate <span class="org-highlight-numbers-number">1</span><span class="org-rainbow-delimiters-depth-4">)</span> s<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+</pre>
+</div>
+
+<p>
+They work like so:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">(</span>rotate <span class="org-highlight-numbers-number">1</span> <span class="org-rainbow-delimiters-depth-2">[</span><span class="org-clojure-keyword">:a</span> <span class="org-clojure-keyword">:b</span> <span class="org-clojure-keyword">:c</span> <span class="org-clojure-keyword">:d</span><span class="org-rainbow-delimiters-depth-2">]</span><span class="org-rainbow-delimiters-depth-1">)</span>  <span class="org-comment">;=&gt; (:b :c :d :a)</span>
+<span class="org-rainbow-delimiters-depth-1">(</span>rotations <span class="org-rainbow-delimiters-depth-2">[</span><span class="org-clojure-keyword">:a</span> <span class="org-clojure-keyword">:b</span> <span class="org-clojure-keyword">:c</span> <span class="org-clojure-keyword">:d</span><span class="org-rainbow-delimiters-depth-2">]</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-comment">;=&gt; ([:a :b :c :d] (:b :c :d :a) (:c :d :a :b) (:d :a :b :c))</span>
+<span class="org-rainbow-delimiters-depth-1">(</span>scales <span class="org-clojure-keyword">:major</span><span class="org-rainbow-delimiters-depth-1">)</span>           <span class="org-comment">;=&gt; [2 2 1 2 2 2 1]</span>
+<span class="org-rainbow-delimiters-depth-1">(</span>rotations <span class="org-rainbow-delimiters-depth-2">(</span>scales <span class="org-clojure-keyword">:major</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+<span class="org-comment-delimiter">;;</span><span class="org-comment">=&gt; ([2 2 1 2 2 2 1] (2 1 2 2 2 1 2) (1 2 2 2 1 2 2) (2 2 2 1 2 2 1) (2 2 1 2 2 1 2) (2 1 2 2 1 2 2) (1 2 2 1 2 2 2))</span>
+</pre>
+</div>
+
+<p>
+I'm going to add these modes to the <code>scales</code> list in a way that reflects this
+relationship:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">def</span> <span class="org-variable-name">scales</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-keyword">let</span> <span class="org-rainbow-delimiters-depth-3">[</span>scales <span class="org-rainbow-delimiters-depth-4">{</span><span class="org-clojure-keyword">:major</span>          <span class="org-rainbow-delimiters-depth-5">[</span><span class="org-constant">W</span> <span class="org-constant">W</span> h <span class="org-constant">W</span> <span class="org-constant">W</span> <span class="org-constant">W</span> h<span class="org-rainbow-delimiters-depth-5">]</span>
+                <span class="org-clojure-keyword">:minor/natural</span>  <span class="org-rainbow-delimiters-depth-5">[</span><span class="org-constant">W</span> h <span class="org-constant">W</span> <span class="org-constant">W</span> h <span class="org-constant">W</span> <span class="org-constant">W</span><span class="org-rainbow-delimiters-depth-5">]</span>
+                <span class="org-clojure-keyword">:minor/harmonic</span> <span class="org-rainbow-delimiters-depth-5">[</span><span class="org-constant">W</span> h <span class="org-constant">W</span> <span class="org-constant">W</span> h <span class="org-type">Wh</span> h<span class="org-rainbow-delimiters-depth-5">]</span>
+                <span class="org-clojure-keyword">:minor/melodic</span>  <span class="org-rainbow-delimiters-depth-5">[</span><span class="org-constant">W</span> h <span class="org-constant">W</span> <span class="org-constant">W</span> <span class="org-constant">W</span> <span class="org-constant">W</span> h<span class="org-rainbow-delimiters-depth-5">]</span><span class="org-rainbow-delimiters-depth-4">}</span>
+        modes <span class="org-rainbow-delimiters-depth-4">(</span>zipmap <span class="org-rainbow-delimiters-depth-5">[</span><span class="org-clojure-keyword">:mode/ionian</span> <span class="org-clojure-keyword">:mode/dorian</span> <span class="org-clojure-keyword">:mode/phrygian</span>
+                       <span class="org-clojure-keyword">:mode/lydian</span> <span class="org-clojure-keyword">:mode/mixolydian</span> <span class="org-clojure-keyword">:mode/aeolian</span>
+                       <span class="org-clojure-keyword">:mode/locrian</span><span class="org-rainbow-delimiters-depth-5">]</span>
+                      <span class="org-rainbow-delimiters-depth-5">(</span>rotations <span class="org-rainbow-delimiters-depth-6">(</span>scales <span class="org-clojure-keyword">:major</span><span class="org-rainbow-delimiters-depth-6">)</span><span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">]</span>
+    <span class="org-rainbow-delimiters-depth-3">(</span>merge scales modes<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+</pre>
+</div>
+
+<p>
+Astute readers might realise that the <code>:minor/natural</code> and <code>:mode/aeolian</code>
+actually have the same associated definition now. The natural minor is the 6th
+degree mode of the major scale. It's rewarding to have read about that and then
+see it accidentally fall out of the model I've created. That relationship might
+actually stick in my head now.
+</p>
+
+<p>
+All of that work was so that I could encode the <b>M7#11</b> chord, so I'll do that
+finally:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">def</span> <span class="org-variable-name">chords</span>
+  <span class="org-rainbow-delimiters-depth-2">{</span><span class="org-clojure-keyword">:M</span>     <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-clojure-keyword">:major</span>         <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-highlight-numbers-number">1</span> <span class="org-highlight-numbers-number">3</span> <span class="org-highlight-numbers-number">5</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">]</span>
+   <span class="org-clojure-keyword">:M7</span>    <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-clojure-keyword">:major</span>         <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-highlight-numbers-number">1</span> <span class="org-highlight-numbers-number">3</span> <span class="org-highlight-numbers-number">5</span> <span class="org-highlight-numbers-number">7</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">]</span>
+   <span class="org-clojure-keyword">:m</span>     <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-clojure-keyword">:minor/natural</span> <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-highlight-numbers-number">1</span> <span class="org-highlight-numbers-number">3</span> <span class="org-highlight-numbers-number">5</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">]</span>
+   <span class="org-clojure-keyword">:m7</span>    <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-clojure-keyword">:minor/natural</span> <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-highlight-numbers-number">1</span> <span class="org-highlight-numbers-number">3</span> <span class="org-highlight-numbers-number">5</span> <span class="org-highlight-numbers-number">7</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">]</span>
+   <span class="org-comment-delimiter">;; </span><span class="org-comment">...</span>
+   <span class="org-clojure-keyword">:m6</span>    <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-clojure-keyword">:minor/melodic</span> <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-highlight-numbers-number">1</span> <span class="org-highlight-numbers-number">3</span> <span class="org-highlight-numbers-number">5</span> <span class="org-highlight-numbers-number">6</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">]</span>
+   <span class="org-clojure-keyword">:M7#11</span> <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-clojure-keyword">:mode/lydian</span>   <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-highlight-numbers-number">1</span> <span class="org-highlight-numbers-number">3</span> <span class="org-highlight-numbers-number">5</span> <span class="org-highlight-numbers-number">7</span> <span class="org-highlight-numbers-number">11</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">]</span><span class="org-rainbow-delimiters-depth-2">}</span><span class="org-rainbow-delimiters-depth-1">)</span>
+</pre>
+</div>
+
+<p>
+At this point, it has become apparent to me that, while defining chords in terms of
+their scales taught me a lot about the relationship between them, it doesn't
+help me compare chords mentally because I have to think too hard about the
+scales (which I only know on paper). If I can factor out the indirection so that
+all chords are defined in the same absolute space, it would be an improvement.
+</p>
+
+<p>
+I could define everything in terms of the major scale, as is often done, but I
+really like thinking about the intervals as indexes in a space of notes.
+Defining them in terms of one specific scale means a lot of complexity around
+dealing with sharps and flats and other accidentals. Instead, I can define both
+chords and scales in terms of absolute distances from a starting note.
+</p>
+
+<p>
+I've found the representation used up until now to be extremely helpful so as I
+move on, I'll be thinking about how I can later <i>generate</i> those previous
+representations when needed.
+</p>
+
+<p>
+Writing the chords out as pitch intervals (i.e. number of half steps) instead of
+as scale degrees will allow easy comparison of chords based on different scales.
+Intervals describe the distance between two pitches (in terms of physics, they
+are ratios between the frequencies of each pitch). This means we could use it to
+describe all scales in terms of the intervals between each note and its tonic
+note or the previous note. We can also describe all chords in the same fashion.
+This seems like a useful internal representation of these concepts, from which
+the prior representations can be derived anyway.
+</p>
+
+<p>
+In fact, my scales are already defined in this way, though I am representing
+them relatively instead of absolutely and indirectly converting them <i>to</i> an
+absolute representation (inside <code>take-nths</code>):
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">(</span>reductions + <span class="org-highlight-numbers-number">0</span> <span class="org-rainbow-delimiters-depth-2">[</span><span class="org-constant">W</span> <span class="org-constant">W</span> h <span class="org-constant">W</span> <span class="org-constant">W</span> <span class="org-constant">W</span> h<span class="org-rainbow-delimiters-depth-2">]</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-comment">;=&gt; (0 2 4 5 7 9 11 12)</span>
+</pre>
+</div>
+
+<p>
+I then pluck those absolute half step counts from a chromatic series of notes to
+get the final scale:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">(</span>map <span class="org-rainbow-delimiters-depth-2">(</span>partial nth <span class="org-rainbow-delimiters-depth-3">(</span>note-series <span class="org-clojure-keyword">:C</span><span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span> '<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-highlight-numbers-number">0</span> <span class="org-highlight-numbers-number">2</span> <span class="org-highlight-numbers-number">4</span> <span class="org-highlight-numbers-number">5</span> <span class="org-highlight-numbers-number">7</span> <span class="org-highlight-numbers-number">9</span> <span class="org-highlight-numbers-number">11</span> <span class="org-highlight-numbers-number">12</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+<span class="org-comment-delimiter">;;</span><span class="org-comment">=&gt; (#{:C} #{:D} #{:E} #{:F} #{:G} #{:A} #{:B} #{:C})</span>
+</pre>
+</div>
+
+<p>
+This strategy can work for chords too!
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-clojure"><span class="org-comment-delimiter">;; </span><span class="org-comment">Am chord</span>
+<span class="org-rainbow-delimiters-depth-1">(</span>map <span class="org-rainbow-delimiters-depth-2">(</span>partial nth <span class="org-rainbow-delimiters-depth-3">(</span>note-series <span class="org-clojure-keyword">:A</span><span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">[</span><span class="org-highlight-numbers-number">0</span> <span class="org-highlight-numbers-number">3</span> <span class="org-highlight-numbers-number">7</span><span class="org-rainbow-delimiters-depth-2">]</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-comment">;=&gt; (#{:A} #{:C} #{:E})</span>
+
+<span class="org-comment-delimiter">;; </span><span class="org-comment">G&#9839;M7</span>
+<span class="org-rainbow-delimiters-depth-1">(</span>map <span class="org-rainbow-delimiters-depth-2">(</span>partial nth <span class="org-rainbow-delimiters-depth-3">(</span>note-series <span class="org-clojure-keyword">:G&#9839;</span><span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">[</span><span class="org-highlight-numbers-number">0</span> <span class="org-highlight-numbers-number">4</span> <span class="org-highlight-numbers-number">7</span> <span class="org-highlight-numbers-number">11</span><span class="org-rainbow-delimiters-depth-2">]</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-comment">;=&gt; (#{:G&#9839; :A&#9837;} #{:C} #{:D&#9839; :E&#9837;} #{:G})</span>
+</pre>
+</div>
+
+<p>
+Next, I want to write out a chord definition list in this fashion and adjust my
+<code>chord</code> function appropriately. However, these magic numbers aren't very
+meaningful by themselves and they don't reveal much about the nature of music.
+I'd rather reference them by name so that the significance of the difference
+between chords is shown most effectively.
+</p>
+
+<p>
+There are 12 half steps between a note and its octave note (13 if you count the
+1:1 interval between a note and itself). These intervals are named by their
+<b>degree</b> (first/unison, second, &#x2026;, eighth/octave) and their <b>quality</b> (major,
+minor, and perfect). Some degrees are perfect, while some degrees have both a
+major and a minor quality. This doesn't make immediate sense and seems
+arbitrary.
+</p>
+
+<p>
+Here are the two octaves worth of intervals (note that the second octave just
+repeats the pattern of qualities) for us to think about.
+</p>
+
+<p>
+<i>Simple</i> intervals are those within a single octave:
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+</colgroup>
+
+<colgroup>
+<col  class="org-left">
+</colgroup>
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+</colgroup>
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+</colgroup>
+
+<colgroup>
+<col  class="org-left">
+</colgroup>
+
+<colgroup>
+<col  class="org-left">
+</colgroup>
+
+<colgroup>
+<col  class="org-left">
+</colgroup>
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+</colgroup>
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+</colgroup>
+
+<colgroup>
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">½ Steps</th>
+<th scope="col" class="org-left">0</th>
+<th scope="col" class="org-left">1</th>
+<th scope="col" class="org-right">2</th>
+<th scope="col" class="org-left">3</th>
+<th scope="col" class="org-right">4</th>
+<th scope="col" class="org-left">5</th>
+<th scope="col" class="org-left">6</th>
+<th scope="col" class="org-left">7</th>
+<th scope="col" class="org-left">8</th>
+<th scope="col" class="org-right">9</th>
+<th scope="col" class="org-left">10</th>
+<th scope="col" class="org-right">11</th>
+<th scope="col" class="org-left">12</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><b>Degree</b></td>
+<td class="org-left">1st</td>
+<td class="org-left">2nd</td>
+<td class="org-right">&#xa0;</td>
+<td class="org-left">3rd</td>
+<td class="org-right">&#xa0;</td>
+<td class="org-left">4th</td>
+<td class="org-left">-</td>
+<td class="org-left">5th</td>
+<td class="org-left">6th</td>
+<td class="org-right">&#xa0;</td>
+<td class="org-left">7th</td>
+<td class="org-right">&#xa0;</td>
+<td class="org-left">8th</td>
+</tr>
+
+<tr>
+<td class="org-left"><b>Quality</b></td>
+<td class="org-left">P</td>
+<td class="org-left">m</td>
+<td class="org-right">M</td>
+<td class="org-left">m</td>
+<td class="org-right">M</td>
+<td class="org-left">P</td>
+<td class="org-left">TT</td>
+<td class="org-left">P</td>
+<td class="org-left">m</td>
+<td class="org-right">M</td>
+<td class="org-left">m</td>
+<td class="org-right">M</td>
+<td class="org-left">P</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+<i>(I'll come to the <b>TT</b> interval at 6 half steps, later&#x2026;)</i>
+</p>
+
+<p>
+<i>Compound</i> intervals are those that span more than one octave:
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">½ Steps</th>
+<th scope="col" class="org-left">12</th>
+<th scope="col" class="org-left">13</th>
+<th scope="col" class="org-right">14</th>
+<th scope="col" class="org-left">15</th>
+<th scope="col" class="org-right">16</th>
+<th scope="col" class="org-left">17</th>
+<th scope="col" class="org-left">18</th>
+<th scope="col" class="org-left">19</th>
+<th scope="col" class="org-left">20</th>
+<th scope="col" class="org-right">21</th>
+<th scope="col" class="org-left">22</th>
+<th scope="col" class="org-right">23</th>
+<th scope="col" class="org-left">24</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><b>Degree</b></td>
+<td class="org-left">8th</td>
+<td class="org-left">9th</td>
+<td class="org-right">&#xa0;</td>
+<td class="org-left">10th</td>
+<td class="org-right">&#xa0;</td>
+<td class="org-left">11th</td>
+<td class="org-left">-</td>
+<td class="org-left">12th</td>
+<td class="org-left">13th</td>
+<td class="org-right">&#xa0;</td>
+<td class="org-left">14th</td>
+<td class="org-right">&#xa0;</td>
+<td class="org-left">15th</td>
+</tr>
+
+<tr>
+<td class="org-left"><b>Quality</b></td>
+<td class="org-left">P</td>
+<td class="org-left">m</td>
+<td class="org-right">M</td>
+<td class="org-left">m</td>
+<td class="org-right">M</td>
+<td class="org-left">P</td>
+<td class="org-left">-</td>
+<td class="org-left">P</td>
+<td class="org-left">m</td>
+<td class="org-right">M</td>
+<td class="org-left">m</td>
+<td class="org-right">M</td>
+<td class="org-left">P</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+I'm going to define symbols for these interval names with the half step count as
+the value. I'm going to use a macro so that I can organize the symbols visually
+in a way that currently makes sense to me:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-clojure">#?<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-clojure-keyword">:clj</span> <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-keyword">defmacro</span> <span class="org-function-name">defintervals</span>
+          <span class="org-rainbow-delimiters-depth-3">[</span>&amp; names<span class="org-rainbow-delimiters-depth-3">]</span>
+          `<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-keyword">do</span>
+             <span class="org-rainbow-delimiters-depth-4">(</span><span class="org-keyword">def</span> <span class="org-variable-name">~</span>'interval-names '<span class="org-rainbow-delimiters-depth-5">[</span>~@names<span class="org-rainbow-delimiters-depth-5">]</span><span class="org-rainbow-delimiters-depth-4">)</span>
+             ~@<span class="org-rainbow-delimiters-depth-4">(</span>map-indexed #<span class="org-rainbow-delimiters-depth-5">(</span><span class="org-keyword">when-not</span> <span class="org-rainbow-delimiters-depth-6">(</span>= '_ <span class="org-variable-name">%2</span><span class="org-rainbow-delimiters-depth-6">)</span>
+                               <span class="org-rainbow-delimiters-depth-6">(</span>list 'def <span class="org-variable-name">%2</span> <span class="org-variable-name">%1</span><span class="org-rainbow-delimiters-depth-6">)</span><span class="org-rainbow-delimiters-depth-5">)</span>
+                            names<span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defintervals</span>
+  <span class="org-comment-delimiter">;; </span><span class="org-comment">simple</span>
+     <span class="org-type">P1</span>
+   m2   <span class="org-type">M2</span>
+   m3   <span class="org-type">M3</span>
+     <span class="org-type">P4</span>
+     <span class="org-constant">TT</span>     <span class="org-comment">; tritone</span>
+     <span class="org-type">P5</span>
+   m6   <span class="org-type">M6</span>
+   m7   <span class="org-type">M7</span>
+     <span class="org-type">P8</span>
+
+  <span class="org-comment-delimiter">;; </span><span class="org-comment">compound</span>
+   m9   <span class="org-type">M9</span>
+  m10   <span class="org-type">M10</span>
+     <span class="org-type">P11</span>
+      _     <span class="org-comment">; nameless?</span>
+     <span class="org-type">P12</span>
+  m13   <span class="org-type">M13</span>
+  m14   <span class="org-type">M14</span>
+     <span class="org-type">P15</span><span class="org-rainbow-delimiters-depth-1">)</span>
+
+<span class="org-type">M2</span> <span class="org-comment">;=&gt; 2</span>
+</pre>
+</div>
+
+<p>
+If you don't understand macros, don't worry. See below to see how the macro is
+<i>expanded</i> by the compiler, so you can understand what I could have written
+instead:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-clojure"><span class="org-comment-delimiter">;; </span><span class="org-comment">(defintervals a b _ c)</span>
+<span class="org-rainbow-delimiters-depth-1">(</span>comment
+ <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-keyword">do</span>
+  <span class="org-rainbow-delimiters-depth-3">(</span><span class="org-keyword">def</span> <span class="org-variable-name">interval-names</span> '<span class="org-rainbow-delimiters-depth-4">[</span>a b _ c<span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">)</span>
+  <span class="org-rainbow-delimiters-depth-3">(</span><span class="org-keyword">def</span> <span class="org-variable-name">a</span> <span class="org-highlight-numbers-number">0</span><span class="org-rainbow-delimiters-depth-3">)</span>
+  <span class="org-rainbow-delimiters-depth-3">(</span><span class="org-keyword">def</span> <span class="org-variable-name">b</span> <span class="org-highlight-numbers-number">1</span><span class="org-rainbow-delimiters-depth-3">)</span>
+  <span class="org-constant">nil</span>
+  <span class="org-rainbow-delimiters-depth-3">(</span><span class="org-keyword">def</span> <span class="org-variable-name">c</span> <span class="org-highlight-numbers-number">3</span><span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+</pre>
+</div>
+
+<p>
+Between the prior text and the following text, I spent about a day trying to
+really grok intervals. The idea of the number of halfsteps between two notes is
+obvious to understand, but the significance of the names applied to them is not.
+It seemed to me like more learn-by-rote and memorising special cases than I am
+comfortable with. Most explanations for the names were tautological without
+prior knowledge&#x2014;"a major interval becomes a minor interval when inverted"
+doesn't actually reveal what it means to be major or minor in the first place!
+</p>
+
+<p>
+I tried to think about these intervals in terms of the scales I had already
+represented in code, and came up with what seemed like a rule of thumb and a use
+mnemonic:
+</p>
+
+<blockquote>
+<p>
+Minor intervals are those which only appear in some minor scale. Of the
+remaining, the major intervals are those which appear in the major scale but
+only in some or no minor scale. Perfect intervals are those of the remaining
+which always appear in both.
+</p>
+</blockquote>
+
+<p>
+Unfortunately, after thinking about it some more, this didn't fit. The <b>minor
+second</b> interval is not in any common minor scale. There isn't even a scale I
+can find which has just <b>♭2 ♭3 ♭6 ♭7</b> (though one might still exist).
+Furthermore, the interval between <b>perfect fourth</b> and <b>perfect fifth</b> isn't in
+either the major scale or a minor scale. It doesn't even have a <b>degree</b> or
+<b>quality</b>! What is going on‽
+</p>
+
+<p>
+Luckily, I finally stumbled on <a href="http://music.stackexchange.com/a/30413/21702">an explanation</a> that provided insight instead of
+yielding even more questions.
+</p>
+
+<p>
+The intervals from the root in an <i>ascending</i> major scale form the major and
+perfect intervals. The intervals from the octave in a <i>descending</i> major scale
+form the minor and perfect intervals. Perfect intervals are in both and the
+majors/minors are in the ascending/descending, respectively. At the heart of
+this is the concept of <a href="https://en.wikipedia.org/wiki/Interval_(music)#Inversion">inversions</a>. In this context, it's raising the lowest or
+lowering the highest notes in an interval (e.g. <b>C→F</b> to <b>F→C</b>). An inverted
+<b>M7</b> interval (<b>C→B</b>) is a <b>m2</b> (<b>B→C</b>). The perfect intervals remain perfect (a
+<b>P5</b> becomes a <b>P4</b> and vice versa while the <b>P1</b> becomes <b>P8</b> and vice versa).
+That middle tone (6 half steps) which has no degree in the table above is called
+the <a href="https://en.wikipedia.org/wiki/Tritone">Tritone</a>. It's special because it is directly in the middle of the chromatic
+12 steps, which means its inversion is the same interval (<b>C→F♯</b> is the same
+number of half steps as <b>F♯→C</b>). It also doesn't appear (relative to the tonic
+or octave) in either the ascending or descending major scale, like the rest.
+</p>
+
+<p>
+Here's an example in terms of the <b>C Major</b> scale:
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Interval</th>
+<th scope="col" class="org-left">C1</th>
+<th scope="col" class="org-left">D</th>
+<th scope="col" class="org-left">E</th>
+<th scope="col" class="org-left">F</th>
+<th scope="col" class="org-left"><i>(F♯)</i></th>
+<th scope="col" class="org-left">G</th>
+<th scope="col" class="org-left">A</th>
+<th scope="col" class="org-left">B</th>
+<th scope="col" class="org-left">C2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><b>from C1</b></td>
+<td class="org-left">P1</td>
+<td class="org-left">M2</td>
+<td class="org-left">M3</td>
+<td class="org-left">P4</td>
+<td class="org-left"><i>(TT)</i></td>
+<td class="org-left">P5</td>
+<td class="org-left">M6</td>
+<td class="org-left">M7</td>
+<td class="org-left">P8</td>
+</tr>
+
+<tr>
+<td class="org-left"><b>to C2</b></td>
+<td class="org-left">P8</td>
+<td class="org-left">m7</td>
+<td class="org-left">m6</td>
+<td class="org-left">P5</td>
+<td class="org-left"><i>(TT)</i></td>
+<td class="org-left">P4</td>
+<td class="org-left">m3</td>
+<td class="org-left">m2</td>
+<td class="org-left">P1</td>
+</tr>
+</tbody>
+</table>
+
+<div id="intervals-in-major-scale-component">
+</div>
+
+<p>
+<i>(Note: the <b>F♯</b> tritone is obviously not in the scale but including it here is
+helpful to see the structural symmetry and to cover all the interval types.)</i>
+</p>
+
+<p>
+So that's cool. I feel like I've unlocked a nice, consistent, explainable
+property of intervals&#x2014;exactly the kind of thing I personally need to learn and
+remember concepts.
+</p>
+
+<p>
+I feel like I should come back to some code now, so I'm going to try to see if I
+understand the concept of an interval inversion:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">invert*</span> <span class="org-rainbow-delimiters-depth-2">[</span>t<span class="org-rainbow-delimiters-depth-2">]</span> <span class="org-rainbow-delimiters-depth-2">(</span>- <span class="org-type">P8</span> t<span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">def</span> <span class="org-variable-name">invert</span> <span class="org-rainbow-delimiters-depth-2">(</span>comp interval-names invert*<span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+
+<span class="org-rainbow-delimiters-depth-1">(</span>invert* m3<span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-comment">;=&gt; 9</span>
+<span class="org-rainbow-delimiters-depth-1">(</span>invert m3<span class="org-rainbow-delimiters-depth-1">)</span>  <span class="org-comment">;=&gt; M6</span>
+<span class="org-rainbow-delimiters-depth-1">(</span>invert <span class="org-type">P4</span><span class="org-rainbow-delimiters-depth-1">)</span>  <span class="org-comment">;=&gt; P5</span>
+<span class="org-rainbow-delimiters-depth-1">(</span>invert <span class="org-constant">TT</span><span class="org-rainbow-delimiters-depth-1">)</span>  <span class="org-comment">;=&gt; TT</span>
+
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">inversion?</span>
+  <span class="org-rainbow-delimiters-depth-2">[</span>t1 t2<span class="org-rainbow-delimiters-depth-2">]</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span>= t1 <span class="org-rainbow-delimiters-depth-3">(</span>invert* t2<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+
+<span class="org-rainbow-delimiters-depth-1">(</span>inversion? <span class="org-type">P4</span> <span class="org-type">P5</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-comment">;=&gt; true</span>
+<span class="org-rainbow-delimiters-depth-1">(</span>inversion? m2 <span class="org-type">M7</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-comment">;=&gt; true</span>
+<span class="org-rainbow-delimiters-depth-1">(</span>inversion? <span class="org-type">M7</span> m2<span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-comment">;=&gt; true</span>
+<span class="org-rainbow-delimiters-depth-1">(</span>inversion? m2 <span class="org-type">M2</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-comment">;=&gt; false</span>
+</pre>
+</div>
+
+<p>
+That seems right. According to <a href="http://www.thecipher.com/inversions-intervals_2.html">this article</a>, compound intervals invert
+differently. That is, they simply transpose down an octave (e.g. M9→M2), which
+means a compound inversion is not symmetrical. So, a very minor adjustment is
+needed:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">invert</span> <span class="org-rainbow-delimiters-depth-2">[</span>t<span class="org-rainbow-delimiters-depth-2">]</span> <span class="org-rainbow-delimiters-depth-2">(</span>interval-names <span class="org-rainbow-delimiters-depth-3">(</span><span class="org-type">Math</span>/abs <span class="org-rainbow-delimiters-depth-4">(</span>- <span class="org-type">P8</span> t<span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+</pre>
+</div>
+
+<p>
+From my reading about intervals, I've determined that there are multiple names
+for the numeric intervals and taht the correct name to use is entirely dependent
+on context. Nonetheless, I'll leave this as is and move on.
+</p>
+
+<p>
+All of this dancing around interval names was so that my chords could be defined
+with named intervals, so that's next:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">def</span> <span class="org-variable-name">R</span> <span class="org-type">P1</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-comment">; reads nicer in this context</span>
+
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">def</span> <span class="org-variable-name">chords</span>
+  <span class="org-rainbow-delimiters-depth-2">{</span><span class="org-clojure-keyword">:M</span>       <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-constant">R</span> <span class="org-type">M3</span> <span class="org-type">P5</span><span class="org-rainbow-delimiters-depth-3">]</span>    <span class="org-comment">; ... previously [:major [1 3 5]]</span>
+   <span class="org-clojure-keyword">:m</span>       <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-constant">R</span> m3 <span class="org-type">P5</span><span class="org-rainbow-delimiters-depth-3">]</span>    <span class="org-comment">; ... previously [:minor [1 3 5]]</span>
+   <span class="org-clojure-keyword">:m6</span>      <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-constant">R</span> m3 <span class="org-type">P5</span> <span class="org-type">M6</span><span class="org-rainbow-delimiters-depth-3">]</span> <span class="org-comment">; ... etc</span>
+
+   <span class="org-comment-delimiter">;;; </span><span class="org-comment">Some 7th chords for fun</span>
+   <span class="org-clojure-keyword">:7</span>       <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-constant">R</span> <span class="org-type">M3</span> <span class="org-type">P5</span> m7<span class="org-rainbow-delimiters-depth-3">]</span> <span class="org-comment">; major/minor (major triad + minor 7th)    "dominant 7th"</span>
+   <span class="org-clojure-keyword">:M7</span>      <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-constant">R</span> <span class="org-type">M3</span> <span class="org-type">P5</span> <span class="org-type">M7</span><span class="org-rainbow-delimiters-depth-3">]</span> <span class="org-comment">; major/major (major triad + major 7th)    "major 7th"</span>
+   <span class="org-clojure-keyword">:m7</span>      <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-constant">R</span> m3 <span class="org-type">P5</span> m7<span class="org-rainbow-delimiters-depth-3">]</span> <span class="org-comment">; minor/minor (minor triad + minor 7th)    "minor 7th"</span>
+   <span class="org-clojure-keyword">:m/M7</span>    <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-constant">R</span> m3 <span class="org-type">P5</span> <span class="org-type">M7</span><span class="org-rainbow-delimiters-depth-3">]</span> <span class="org-comment">; minor/major (minor triad + major 7th)</span>
+   <span class="org-rainbow-delimiters-depth-2">}</span><span class="org-rainbow-delimiters-depth-1">)</span>
+</pre>
+</div>
+
+<p>
+I also need to adjust the <code>chord</code> function to use the new representation.
+Fortunately, it gets even simpler:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">chord</span>
+  <span class="org-rainbow-delimiters-depth-2">[</span>name root<span class="org-rainbow-delimiters-depth-2">]</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span>map <span class="org-rainbow-delimiters-depth-3">(</span>partial nth <span class="org-rainbow-delimiters-depth-4">(</span>note-series root<span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">)</span>
+       <span class="org-rainbow-delimiters-depth-3">(</span>chords name<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+
+<span class="org-rainbow-delimiters-depth-1">(</span>chord <span class="org-clojure-keyword">:m7</span> <span class="org-clojure-keyword">:C</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-comment">;=&gt; (#{:C} #{:D&#9839; :E&#9837;} #{:G} #{:A&#9839; :B&#9837;})</span>
+</pre>
+</div>
+
+<p>
+Now, I'm curious if I can get back to my scale-based representation of chords. I
+should be able to filter the scales by ones that include the notes of the chord,
+then return the indexes of those notes in the scale, along with the scale name.
+</p>
+
+<p>
+First, I'll need to convert the scales to absolute intervals:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">map-values</span>
+  <span class="org-rainbow-delimiters-depth-2">[</span>f m<span class="org-rainbow-delimiters-depth-2">]</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span>into <span class="org-rainbow-delimiters-depth-3">{}</span>
+        <span class="org-rainbow-delimiters-depth-3">(</span>map <span class="org-rainbow-delimiters-depth-4">(</span>fn <span class="org-rainbow-delimiters-depth-5">[</span><span class="org-rainbow-delimiters-depth-6">[</span>k v<span class="org-rainbow-delimiters-depth-6">]</span><span class="org-rainbow-delimiters-depth-5">]</span> <span class="org-rainbow-delimiters-depth-5">[</span>k <span class="org-rainbow-delimiters-depth-6">(</span>f v<span class="org-rainbow-delimiters-depth-6">)</span><span class="org-rainbow-delimiters-depth-5">]</span><span class="org-rainbow-delimiters-depth-4">)</span>
+             m<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">def</span> <span class="org-variable-name">interval-scales</span> <span class="org-rainbow-delimiters-depth-2">(</span>map-values <span class="org-rainbow-delimiters-depth-3">(</span>partial reductions + <span class="org-highlight-numbers-number">0</span><span class="org-rainbow-delimiters-depth-3">)</span> scales<span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+
+interval-scales <span class="org-comment">;=&gt; {:mode/aeolian (0 2 3 5 7 8 10 12), ...}</span>
+
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">def</span> <span class="org-variable-name">named-interval-scales</span> <span class="org-rainbow-delimiters-depth-2">(</span>map-values <span class="org-rainbow-delimiters-depth-3">(</span>partial map interval-names<span class="org-rainbow-delimiters-depth-3">)</span> interval-scales<span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+
+named-interval-scales <span class="org-comment">;=&gt; {:mode/aeolian (P1 M2 m3 P4 P5 m6 m7 P8), ...}</span>
+</pre>
+</div>
+
+<p>
+Then, I need to filter the scales by whether or not it includes the chord's
+intervals:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">chord-in-scale?</span>
+  <span class="org-rainbow-delimiters-depth-2">[</span>chord scale<span class="org-rainbow-delimiters-depth-2">]</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span>every? <span class="org-rainbow-delimiters-depth-3">(</span>set <span class="org-rainbow-delimiters-depth-4">(</span>interval-scales scale<span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">)</span>
+          <span class="org-rainbow-delimiters-depth-3">(</span>chords chord<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+
+<span class="org-rainbow-delimiters-depth-1">(</span>chord-in-scale? <span class="org-clojure-keyword">:M</span> <span class="org-clojure-keyword">:major</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-comment">;=&gt; true</span>
+<span class="org-rainbow-delimiters-depth-1">(</span>chord-in-scale? <span class="org-clojure-keyword">:m</span> <span class="org-clojure-keyword">:minor</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-comment">;=&gt; false</span>
+</pre>
+</div>
+
+<p>
+Neat! This function acts poorly if given arguments without definitions, but I'm
+not worrying about that level of correctness right now, because I expect a level
+of churn with all this code as my understanding of the concepts evolves.
+</p>
+
+<p>
+Now, let's find scale representations for a chord!
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">scales-for-chord</span>
+  <span class="org-rainbow-delimiters-depth-2">[</span>chord<span class="org-rainbow-delimiters-depth-2">]</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span>into <span class="org-rainbow-delimiters-depth-3">{}</span>
+        <span class="org-rainbow-delimiters-depth-3">(</span><span class="org-keyword">for</span> <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-rainbow-delimiters-depth-5">[</span>s ints<span class="org-rainbow-delimiters-depth-5">]</span> interval-scales
+              <span class="org-clojure-keyword">:when</span> <span class="org-rainbow-delimiters-depth-5">(</span>chord-in-scale? chord s<span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">]</span>
+          <span class="org-rainbow-delimiters-depth-4">[</span>s <span class="org-rainbow-delimiters-depth-5">(</span>map <span class="org-rainbow-delimiters-depth-6">(</span>comp inc #<span class="org-rainbow-delimiters-depth-7">(</span><span class="org-clojure-interop-method">.indexOf</span> ints <span class="org-variable-name">%</span><span class="org-rainbow-delimiters-depth-7">)</span><span class="org-rainbow-delimiters-depth-6">)</span>
+                  <span class="org-rainbow-delimiters-depth-6">(</span>chords chord<span class="org-rainbow-delimiters-depth-6">)</span><span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+
+<span class="org-rainbow-delimiters-depth-1">(</span>scales-for-chord <span class="org-clojure-keyword">:M</span><span class="org-rainbow-delimiters-depth-1">)</span>    <span class="org-comment">;=&gt; {:mode/ionian (1 3 5), :major (1 3 5) ...}</span>
+<span class="org-rainbow-delimiters-depth-1">(</span>scales-for-chord <span class="org-clojure-keyword">:m</span><span class="org-rainbow-delimiters-depth-1">)</span>    <span class="org-comment">;=&gt; {:mode/aeolian (1 3 5), :minor/natural (1 3 5), ...}</span>
+<span class="org-rainbow-delimiters-depth-1">(</span>scales-for-chord <span class="org-clojure-keyword">:7</span><span class="org-rainbow-delimiters-depth-1">)</span>    <span class="org-comment">;=&gt; {:mode/mixolydian (1 3 5 7)}</span>
+<span class="org-rainbow-delimiters-depth-1">(</span>scales-for-chord <span class="org-clojure-keyword">:m/M7</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-comment">;=&gt; {:minor/melodic (1 3 5 7), :minor/harmonic (1 3 5 7)}</span>
+</pre>
+</div>
+
+<p>
+Let's get all the matching scales for all our chords!
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">def</span> <span class="org-variable-name">scale-chords</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span>map-values scales-for-chord
+              <span class="org-rainbow-delimiters-depth-3">(</span>map <span class="org-rainbow-delimiters-depth-4">(</span>fn <span class="org-rainbow-delimiters-depth-5">[</span><span class="org-rainbow-delimiters-depth-6">[</span>k _<span class="org-rainbow-delimiters-depth-6">]</span><span class="org-rainbow-delimiters-depth-5">]</span> <span class="org-rainbow-delimiters-depth-5">[</span>k k<span class="org-rainbow-delimiters-depth-5">]</span><span class="org-rainbow-delimiters-depth-4">)</span>
+                   chords<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+
+scale-chords
+<span class="org-comment-delimiter">;;</span><span class="org-comment">=&gt; {:M {:mode/ionian (1 3 5), ...}, :m/M7 {:minor/melodic (1 3 5 7), ...}, ...}</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-2">
+<h2 id="orgheadline3">Future</h2>
+<div class="outline-text-2" id="text-orgheadline3">
+<ul class="org-ul">
+<li><p>
+generate chord charts dynamically by applying notes to the fretboard
+with constraints (how wide can a hand stretch, how many fingers exist, which
+strings can be muted, etc)
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-clojure"><span class="org-comment-delimiter">;; </span><span class="org-comment">a 24-fret guitar fretboard of notes</span>
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">def</span> <span class="org-variable-name">guitar</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span>map <span class="org-rainbow-delimiters-depth-3">(</span>comp <span class="org-rainbow-delimiters-depth-4">(</span>partial take <span class="org-highlight-numbers-number">24</span><span class="org-rainbow-delimiters-depth-4">)</span> note-series<span class="org-rainbow-delimiters-depth-3">)</span>
+       <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-clojure-keyword">:E</span> <span class="org-clojure-keyword">:A</span> <span class="org-clojure-keyword">:D</span> <span class="org-clojure-keyword">:G</span> <span class="org-clojure-keyword">:B</span> <span class="org-clojure-keyword">:E</span><span class="org-rainbow-delimiters-depth-3">]</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+</pre>
+</div></li>
+
+<li>interactive visualisations (circle of fifths)</li>
+<li>representing chords
+
+<ul class="org-ul">
+<li>as intervals as applied to all known scales</li>
+<li>as absolute intervals (e.g. dim is R m3 d5 - i.e. intervals from root)</li>
+<li>as relative intervals (e.g. dim is R m3 m3 &#x2014; i.e. intervals between component tones)</li>
+</ul></li>
+
+<li>representing scales
+
+<ul class="org-ul">
+<li>as semitone/tone</li>
+<li>as intervals from root</li>
+</ul></li>
+
+<li>"diff" a chord (e.g. diff minor to Major? "♭3")</li>
+<li>"diff" a scale</li>
+<li>generate modal melodies based on a sequence of chords</li>
+<li>interface with Java or JS (if ClojureScript) MIDI/sound libraries to
+hear intervals and chords</li>
+<li>interval/chord ear training</li>
+<li>typing tutor style exercise that asks for intervals and listens to an
+instrument pluck the relative interval. Goal here is to learn the
+positions of intervals on the fretboard, I think.</li>
+<li>Edit this to an executable "literate Clojure" file so snippets are
+executable and remain correct.
+
+<ul class="org-ul">
+<li>or a Gorilla REPL worksheet! Especially if the "plot" renderings are pluggable!</li>
+</ul></li>
+
+<li>Whatever feels like fun!</li>
+</ul>
+</div>
+</div>
+</div>
+</body>
+</html>
