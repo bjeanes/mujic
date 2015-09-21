@@ -2,17 +2,19 @@
 #+AUTHOR: Bo Jeanes
 #+EMAIL: me@bjeanes.com
 #+STARTUP: showeverything
-#+OPTIONS: toc:nil ^:{}
+#+OPTIONS: toc:nil ^:{} creator:nil email:nil date:nil
 #+PROPERTY: header-args:clojure :session *clj* :cache yes :results value silent :tangle "src/mujic.cljc"
 #+HTML_HEAD_EXTRA: <style>
 #+HTML_HEAD_EXTRA:   body { font-family: "Helvetica Neue", "Helvetica", sans-serif; }
 #+HTML_HEAD_EXTRA:   div#content { max-width: 600px; margin: auto; }
 #+HTML_HEAD_EXTRA:   table { margin: auto; }
 #+HTML_HEAD_EXTRA:   div.org-src-container pre.src {
-#+HTML_HEAD_EXTRA:     background-color: #272822;
-#+HTML_HEAD_EXTRA:     color: #fff;
+#+HTML_HEAD_EXTRA:     /*background-color: #272822;
+#+HTML_HEAD_EXTRA:     color: #fff;*/
 #+HTML_HEAD_EXTRA:     font-weight: 100;
+#+HTML_HEAD_EXTRA:     font-family: "Source Code Pro", "Inconsolata", "Monaco", monospace;
 #+HTML_HEAD_EXTRA:     overflow-x: auto;
+#+HTML_HEAD_EXTRA:     padding-top: 8pt;
 #+HTML_HEAD_EXTRA:   }
 #+HTML_HEAD_EXTRA: </style>
 #+HTML_HEAD_EXTRA: <script src="mujic.js"></script>
@@ -20,7 +22,9 @@
 #+BEGIN_SRC emacs-lisp :exports none :results silent
   ;; Eval this code block with C-c C-c to work with this file effectively...
   (require 'ob-clojure)
-  (setq org-babel-clojure-backent 'cider)
+  (setq org-babel-clojure-backend 'cider
+        org-export-html-style-include-scripts nil
+        org-export-html-style-include-default nil)
   (require 'cider)
 #+END_SRC
 
@@ -43,15 +47,40 @@
        (defmacro render [& args])
        (def ratom atom)))
 
+  (declare note-series)
+
   ;; Some global state to keep all the interactive components using the same key
   ;; or tonic
   (def tonic (ratom :C))
   (def key tonic)
+
+  (defn- get-selected-key [event]
+    (-> event
+        .-target
+        .-selectedOptions
+        (aget 0)
+        .-value
+        keyword))
+
+  (defn- key-selector-on-change [event]
+    (reset! key (get-selected-key event)))
+
+  (defn key-selector-component
+    "Render a re-usable widget that selects the key or tonic for the interactive example.
+     Adjusts the key for the entire page (i.e. global state)."
+    []
+    (letfn [(option-fn [note] [:option {:value note} (name note)])]
+      (let [notes (take 12 (note-series :C))
+            notes (map first notes) ; TODO handle C#/Db distinctions better
+            options (map option-fn notes)]
+        [:div {:style {:text-align "center"}}
+         (into [:select {:value @key
+                         :style {:padding "auto"}
+                         :on-change key-selector-on-change}]
+               options)])))
 #+END_SRC
 
-* Mujic: Learning Music Theory with Clojure
-
-** Preamble
+* Preamble
 
 I've played guitar since I was about 7 years old. Like many casual musicians, my
 interest and focus has waxed and waned over those years and, consequently, my
@@ -66,23 +95,19 @@ built on memorising labels and rules, each with an abundance of special cases
 and exceptions. Every bit of theory I managed to learn in the past would slip
 away just as quickly because the foundation wasn't sturdy.
 
-I have been feeling pretty burned out at work the last few weeks, despite loving
-what I'm working on, so I decided to take a week off to focus on more playful
-and experimental projects. I've also been itching to get my fingers dirty with
-Clojure again.
-
-So, I decided to try to learn music theory by using Clojure to explore the
-relationships between different concepts (notes, intervals, scales, modes,
-chords). Approaching music theory as if it were any other unknown domain that I
-had to model in code should help me really understand and formalise how things
-work and hopefully let it stick in my head.
+Since I've been really missing working with Clojure, I decided to try to learn
+music theory by using Clojure to explore the relationships between different
+concepts (notes, intervals, scales, modes, chords). Approaching music theory as
+if it were any other unknown domain that I had to model in code should help me
+really understand and formalise how things work and hopefully let it stick in my
+head.
 
 This post serves as my logbook and worksheet for the experiment. As such, it
 preserves any understandings which are incorrect or incomplete and subsequent
 re-understandings of concepts are appended. I will retroactively edit earlier
 sections to make them clearer or easier to refer to later, though.
 
-** Logbook
+* Logbook
 
 It seems obvious that I need some concept of the usable (Western music) notes
 and their order, so I'll start there:
@@ -126,13 +151,79 @@ usually defined in terms of number of semitone steps:
 #+END_SRC
 
 #+BEGIN_SRC clojure :exports none
-  (defn)
-  (defn scales-sieve-component []
-    [:svg {:width "100%" :height 40}
-     (vec (map))
-     ])
+  (let [note-width 100
+        lbls {1 "H" 2 "W" 3 "W+H"}
+        height 40]
 
+    (letfn [(g
+              ([attrs grouped] (into [:g attrs] grouped))
+              ([grouped] (g {} grouped)))
+
+            (scale-step-svg-component
+              [rel abs]
+
+              (let [lbl (get lbls rel rel)
+                    rel (* note-width rel)
+                    abs (* note-width abs)
+                    lbl-x (/ rel 2)
+                    gap (* 0.1 note-width)]
+
+                [:g {:transform (str "translate(" abs " 0)")}
+                 [:text {:text-anchor "middle"
+                         :x lbl-x}
+                  lbl]
+                 [:line {:stroke "black"
+                         :x1 gap :x2 (- rel gap)
+                         :y1 0 :y2 0}]]))
+
+            (scale-steps-svg-component
+              [scale]
+              (let [relative (scales @scale)               ; (2 2 1 2 2 2 1)
+                    absolute (take-nths relative (range))] ; (0 2 4 5 ...)
+                (g (map (fn [rel abs]
+                          [scale-step-svg-component
+                           rel abs])
+                        relative
+                        absolute))))
+
+            (scale-notes-svg-component []
+              (let [notes (take 13 (note-series @tonic))]
+                (g (map-indexed #(vector :text
+                                         {:x (* note-width %1)}
+                                         %2)
+                                notes))))
+
+            (scales-sieve-svg-component
+              [scale]
+              [:svg {:width "100%"
+                     :height height
+                     :viewBox [0 0 (* 13 note-width) height]}
+               [scale-notes-svg-component]
+               [scale-steps-svg-component scale]])
+
+            (scale-selector-component [scale]
+              (let [name (name @scale) ; doesn't include namespace, so:
+                    ns (namespace @scale)
+                    val (if ns (str ns "/" name) name)]
+                [:div {:style {:text-align "center"}}
+                 [:select {:value val
+                           :on-change #(reset! scale (get-selected-key %)) }
+                  [:option {:value "major"} "Major"]
+                  [:option {:value "minor/natural"} "Natural Minor"]
+                  [:option {:value "minor/harmonic"} "Harmonic Minor"]]])) ]
+
+      (defn scales-sieve-component []
+        (let [scale (ratom :major)]
+          (fn []
+            [:div
+             [key-selector-component]
+             [scale-selector-component scale]
+             [scales-sieve-svg-component scale]])))))
 #+END_SRC
+
+#+BEGIN_HTML
+<div id="scales-sieve-component"></div>
+#+END_HTML
 
 Now, I need a way to pick items from a list based on these steps, which I think
 of as relative indices. I have a sense that this might be a generically
@@ -427,12 +518,11 @@ finally:
      :M7#11 [:mode/lydian   [1 3 5 7 11]]})
 #+END_SRC
 
-At this point, it has become apparent to me that defining chords in terms of
-their scales taught me a lot about the relationship between chords and scales.
-However, it doesn't help me compare chords mentally because I have to think too
-hard about the scales (which I only know on paper). If I can factor out the
-indirection so that all chords are defined in the same absolute space, it would
-be an improvement.
+At this point, it has become apparent to me that, while defining chords in terms of
+their scales taught me a lot about the relationship between them, it doesn't
+help me compare chords mentally because I have to think too hard about the
+scales (which I only know on paper). If I can factor out the indirection so that
+all chords are defined in the same absolute space, it would be an improvement.
 
 I could define everything in terms of the major scale, as is often done, but I
 really like thinking about the intervals as indexes in a space of notes.
@@ -564,14 +654,14 @@ instead:
 
 #+RESULTS[abea0fa4e5e21c5761923a6f25e261dbb2a17cc0]:
 #+BEGIN_SRC clojure
-;; (defintervals a b _ c)
-(comment
- (do
-  (def user/interval-names '[a b _ c])
-  (def a 0)
-  (def b 1)
-  nil
-  (def c 3)))
+  ;; (defintervals a b _ c)
+  (comment
+   (do
+    (def interval-names '[a b _ c])
+    (def a 0)
+    (def b 1)
+    nil
+    (def c 3)))
 #+END_SRC
 
 Between the prior text and the following text, I spent about a day trying to
@@ -635,24 +725,26 @@ Here's an example in terms of the *C Major* scale:
         (let [scale (major @tonic)
               tri-tone (nth (note-series @tonic) 6)
               [front back] (split-at 4 scale)]
-          [:table
-           [:thead
-            [:tr
-             [:th "Interval"]
-             [:th (fmt (nth scale 0) 0)]
-             [:th (fmt (nth scale 1))]
-             [:th (fmt (nth scale 2))]
-             [:th (fmt (nth scale 3))]
-             [:th [:i (str "(" (fmt tri-tone) ")")]]
-             [:th (fmt (nth scale 4))]
-             [:th (fmt (nth scale 5))]
-             [:th (fmt (nth scale 6))]
-             [:th (fmt (nth scale 7) 1)]
-             ]
-            #_(vec (concat [:tr [:th "Interval"]]
-                           (map fmt front)
-                           [(fmt tri-tone)]
-                           (map fmt back)))]]))))
+          [:div
+           [key-selector-component]
+           [:table
+            [:thead
+             [:tr
+              [:th "Interval"]
+              [:th (fmt (nth scale 0) 0)]
+              [:th (fmt (nth scale 1))]
+              [:th (fmt (nth scale 2))]
+              [:th (fmt (nth scale 3))]
+              [:th [:i (str "(" (fmt tri-tone) ")")]]
+              [:th (fmt (nth scale 4))]
+              [:th (fmt (nth scale 5))]
+              [:th (fmt (nth scale 6))]
+              [:th (fmt (nth scale 7) 1)]
+              ]
+             #_(vec (concat [:tr [:th "Interval"]]
+                            (map fmt front)
+                            [(fmt tri-tone)]
+                            (map fmt back)))]]]))))
 #+END_SRC
 
 #+BEGIN_HTML
@@ -801,7 +893,7 @@ Let's get all the matching scales for all our chords!
   ;;=> {:M {:mode/ionian (1 3 5), ...}, :m/M7 {:minor/melodic (1 3 5 7), ...}, ...}
 #+END_SRC
 
-** Future
+* Future
 
 - generate chord charts dynamically by applying notes to the fretboard
   with constraints (how wide can a hand stretch, how many fingers exist, which
@@ -855,7 +947,7 @@ Let's get all the matching scales for all our chords!
       (fn []
         (let [intern-kv (ns-interns 'mujic)
               component-keys (filter (comp (partial re-find #"-component$")
-                                           name)
+                                        name)
                                      (keys intern-kv))]
           (doseq [k component-keys
                   :let [f @(k intern-kv)

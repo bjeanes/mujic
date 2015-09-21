@@ -16,9 +16,41 @@
      (defmacro render [& args])
      (def ratom atom)))
 
+(declare note-series)
+
+;; Some global state to keep all the interactive components using the same key
+;; or tonic
+(def tonic (ratom :C))
+(def key tonic)
+
+(defn- get-selected-key [event]
+  (-> event
+      .-target
+      .-selectedOptions
+      (aget 0)
+      .-value
+      keyword))
+
+(defn- key-selector-on-change [event]
+  (reset! key (get-selected-key event)))
+
+(defn key-selector-component
+  "Render a re-usable widget that selects the key or tonic for the interactive example.
+   Adjusts the key for the entire page (i.e. global state)."
+  []
+  (letfn [(option-fn [note] [:option {:value note} (name note)])]
+    (let [notes (take 12 (note-series :C))
+          notes (map first notes) ; TODO handle C#/Db distinctions better
+          options (map option-fn notes)]
+      [:div {:style {:text-align "center"}}
+       (into [:select {:value @key
+                       :style {:padding "auto"}
+                       :on-change key-selector-on-change}]
+             options)])))
+
 (def ordered-notes
   ;; I'm using actual flat (♭) and sharp (♯) symbols because this
-  ;; project is for fun and I have working auto-complete. 
+  ;; project is for fun and I have working auto-complete.
   ;; Practicality be damned!
   [#{:C} #{:C♯ :D♭}
    #{:D} #{:D♯ :E♭}
@@ -36,6 +68,76 @@
 (def scales {:major          [W W h W W W h]
              :minor/natural  [W h W W h W W]
              :minor/harmonic [W h W W h Wh h]})
+
+(let [note-width 100
+      lbls {1 "H" 2 "W" 3 "W+H"}
+      height 40]
+
+  (letfn [(g
+            ([attrs grouped] (into [:g attrs] grouped))
+            ([grouped] (g {} grouped)))
+
+          (scale-step-svg-component
+            [rel abs]
+
+            (let [lbl (get lbls rel rel)
+                  rel (* note-width rel)
+                  abs (* note-width abs)
+                  lbl-x (/ rel 2)
+                  gap (* 0.1 note-width)]
+
+              [:g {:transform (str "translate(" abs " 0)")}
+               [:text {:text-anchor "middle"
+                       :x lbl-x}
+                lbl]
+               [:line {:stroke "black"
+                       :x1 gap :x2 (- rel gap)
+                       :y1 0 :y2 0}]]))
+
+          (scale-steps-svg-component
+            [scale]
+            (let [relative (scales @scale)               ; (2 2 1 2 2 2 1)
+                  absolute (take-nths relative (range))] ; (0 2 4 5 ...)
+              (g {:transform "translate(0 50)"}
+                 (map (fn [rel abs]
+                        [scale-step-svg-component
+                         rel abs])
+                      relative
+                      absolute))))
+
+          (scale-notes-svg-component []
+            (let [notes (take 13 (note-series @tonic))]
+              (g (map-indexed #(vector :text
+                                       {:x (* note-width %1)}
+                                       (name (first %2)))
+                              notes))))
+
+          (scales-sieve-svg-component
+            [scale]
+            [:svg {:width "100%"
+                   :height height
+                   :viewBox [0 0 (* 13 note-width) height]}
+             [scale-notes-svg-component]
+             [scale-steps-svg-component scale]])
+
+          (scale-selector-component [scale]
+            (let [name (name @scale) ; doesn't include namespace, so:
+                  ns (namespace @scale)
+                  val (if ns (str ns "/" name) name)]
+              [:div {:style {:text-align "center"}}
+               [:select {:value val
+                         :on-change #(reset! scale (get-selected-key %)) }
+                [:option {:value "major"} "Major"]
+                [:option {:value "minor/natural"} "Natural Minor"]
+                [:option {:value "minor/harmonic"} "Harmonic Minor"]]])) ]
+
+    (defn scales-sieve-component []
+      (let [scale (ratom :major)]
+        (fn []
+          [:div
+           [key-selector-component]
+           [scale-selector-component scale]
+           [scales-sieve-svg-component scale]])))))
 
 (defn take-nths
   "Takes a collection and returns the values of each interval
@@ -88,7 +190,7 @@
 (def major-scale (partial scale :major))
 (major-scale :C) ;=> (#{:C} #{:D} #{:E} #{:F} #{:G} #{:A} #{:B} #{:C})
 
-;; Just a few chords for now will do. We'll map a chord 
+;; Just a few chords for now will do. We'll map a chord
 ;; name to a scale and the notes from the scale to use.
 (def chords
   {:M  [:major         [1 3 5]]
@@ -161,7 +263,7 @@
 (rotations (scales :major))
 ;;=> ([2 2 1 2 2 2 1] (2 1 2 2 2 1 2) (1 2 2 2 1 2 2) (2 2 2 1 2 2 1) (2 2 1 2 2 1 2) (2 1 2 2 1 2 2) (1 2 2 1 2 2 2))
 
-(def scales 
+(def scales
   (let [scales {:major          [W W h W W W h]
                 :minor/natural  [W h W W h W W]
                 :minor/harmonic [W h W W h Wh h]
@@ -227,15 +329,14 @@ M2 ;=> 2
 ;; (defintervals a b _ c)
 (comment
  (do
-  (def user/interval-names '[a b _ c])
+  (def interval-names '[a b _ c])
   (def a 0)
   (def b 1)
   nil
   (def c 3)))
 
 (defn intervals-in-major-scale-component []
-  (let [tonic (ratom :C)
-        major (partial scale :major)
+  (let [major (partial scale :major)
         fmt (fn
               ([t]   (str/join "/" (map name t)))
               ([t n] (str/join "/" (map #(str (name %) n)
@@ -244,24 +345,26 @@ M2 ;=> 2
       (let [scale (major @tonic)
             tri-tone (nth (note-series @tonic) 6)
             [front back] (split-at 4 scale)]
-        [:table
-         [:thead
-          [:tr
-           [:th "Interval"]
-           [:th (fmt (nth scale 0) 0)]
-           [:th (fmt (nth scale 1))]
-           [:th (fmt (nth scale 2))]
-           [:th (fmt (nth scale 3))]
-           [:th [:i (str "(" (fmt tri-tone) ")")]]
-           [:th (fmt (nth scale 4))]
-           [:th (fmt (nth scale 5))]
-           [:th (fmt (nth scale 6))]
-           [:th (fmt (nth scale 7) 1)]
-           ]
-          #_(vec (concat [:tr [:th "Interval"]]
-                         (map fmt front)
-                         [(fmt tri-tone)]
-                         (map fmt back)))]]))))
+        [:div
+         [key-selector-component]
+         [:table
+          [:thead
+           [:tr
+            [:th "Interval"]
+            [:th (fmt (nth scale 0) 0)]
+            [:th (fmt (nth scale 1))]
+            [:th (fmt (nth scale 2))]
+            [:th (fmt (nth scale 3))]
+            [:th [:i (str "(" (fmt tri-tone) ")")]]
+            [:th (fmt (nth scale 4))]
+            [:th (fmt (nth scale 5))]
+            [:th (fmt (nth scale 6))]
+            [:th (fmt (nth scale 7) 1)]
+            ]
+           #_(vec (concat [:tr [:th "Interval"]]
+                          (map fmt front)
+                          [(fmt tri-tone)]
+                          (map fmt back)))]]]))))
 
 (defn invert* [t] (- P8 t))
 (def invert (comp interval-names invert*))
@@ -319,7 +422,7 @@ named-interval-scales ;=> {:mode/aeolian (P1 M2 m3 P4 P5 m6 m7 P8), ...}
 
 (defn chord-in-scale?
   [chord scale]
-  (every? (set (interval-scales scale)) 
+  (every? (set (interval-scales scale))
           (chords chord)))
 
 (chord-in-scale? :M :major) ;=> true
@@ -338,9 +441,13 @@ named-interval-scales ;=> {:mode/aeolian (P1 M2 m3 P4 P5 m6 m7 P8), ...}
 (scales-for-chord :7)    ;=> {:mode/mixolydian (1 3 5 7)}
 (scales-for-chord :m/M7) ;=> {:minor/melodic (1 3 5 7), :minor/harmonic (1 3 5 7)}
 
-(def scale-chords (map-values scales-for-chord (map (fn [[k _]] [k k]) chords)))
+(def scale-chords
+  (map-values scales-for-chord
+              (map (fn [[k _]] [k k])
+                   chords)))
 
-scale-chords ;=> {:M {:mode/ionian (1 3 5), ...}, :m/M7 {:minor/melodic (1 3 5 7), ...}, ...}
+scale-chords
+;;=> {:M {:mode/ionian (1 3 5), ...}, :m/M7 {:minor/melodic (1 3 5 7), ...}, ...}
 
 ;; a 24-fret guitar fretboard of notes
 (def guitar
@@ -359,7 +466,7 @@ scale-chords ;=> {:M {:mode/ionian (1 3 5), ...}, :m/M7 {:minor/melodic (1 3 5 7
     (fn []
       (let [intern-kv (ns-interns 'mujic)
             component-keys (filter (comp (partial re-find #"-component$")
-                                         name)
+                                      name)
                                    (keys intern-kv))]
         (doseq [k component-keys
                 :let [f @(k intern-kv)
