@@ -2,7 +2,7 @@
 #+AUTHOR: Bo Jeanes
 #+EMAIL: me@bjeanes.com
 #+STARTUP: showeverything
-#+OPTIONS: toc:nil ^:{} creator:nil email:nil date:nil
+#+OPTIONS: toc:nil ^:{} creator:nil email:nil date:nil num:nil
 #+PROPERTY: header-args:clojure :session *clj* :cache yes :results value silent :tangle "src/mujic.cljc"
 #+HTML_HEAD_EXTRA: <style>
 #+HTML_HEAD_EXTRA:   body { font-family: "Helvetica Neue", "Helvetica", sans-serif; }
@@ -19,13 +19,12 @@
 #+HTML_HEAD_EXTRA: </style>
 #+HTML_HEAD_EXTRA: <script src="mujic.js"></script>
 
+#+OPTIONS: html-link-use-abs-url:nil html-postamble:nil html-preamble:t
+#+OPTIONS: html-scripts:nil html-style:nil html5-fancy:nil tex:nil
+#+HTML_DOCTYPE: html5
+#+HTML_CONTAINER: div
+
 #+BEGIN_SRC emacs-lisp :exports none :results silent
-  ;; Eval this code block with C-c C-c to work with this file effectively...
-  (require 'ob-clojure)
-  (setq org-babel-clojure-backend 'cider
-        org-export-html-style-include-scripts nil
-        org-export-html-style-include-default nil)
-  (require 'cider)
 #+END_SRC
 
 #+BEGIN_SRC clojure :exports none
