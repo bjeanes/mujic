@@ -150,7 +150,9 @@ usually defined in terms of number of semitone steps:
 #+END_SRC
 
 #+BEGIN_SRC clojure :exports none
-  (let [note-width 100
+  (declare take-nths)
+
+  (let [note-width 70
         lbls {1 "H" 2 "W" 3 "W+H"}
         height 40]
 
@@ -186,10 +188,12 @@ usually defined in terms of number of semitone steps:
                         absolute))))
 
             (scale-notes-svg-component []
-              (let [notes (take 13 (note-series @tonic))]
+              (let [notes (take 13 (note-series @tonic))
+                    ;; TODO handle C#/Db distinctions better
+                    notes (map first notes)]
                 (g (map-indexed #(vector :text
                                          {:x (* note-width %1)}
-                                         %2)
+                                         (name %2))
                                 notes))))
 
             (scales-sieve-svg-component
@@ -716,10 +720,7 @@ Here's an example in terms of the *C Major* scale:
 #+BEGIN_SRC clojure :exports none
   (defn intervals-in-major-scale-component []
     (let [major (partial scale :major)
-          fmt (fn
-                ([t]   (str/join "/" (map name t)))
-                ([t n] (str/join "/" (map #(str (name %) n)
-                                          t))))]
+          fmt (fn [t] (str/join "/" (map name t)))]
       (fn []
         (let [scale (major @tonic)
               tri-tone (nth (note-series @tonic) 6)
@@ -730,7 +731,7 @@ Here's an example in terms of the *C Major* scale:
             [:thead
              [:tr
               [:th "Interval"]
-              [:th (fmt (nth scale 0) 0)]
+              [:th (fmt (nth scale 0)) [:sub 1]]
               [:th (fmt (nth scale 1))]
               [:th (fmt (nth scale 2))]
               [:th (fmt (nth scale 3))]
@@ -738,8 +739,7 @@ Here's an example in terms of the *C Major* scale:
               [:th (fmt (nth scale 4))]
               [:th (fmt (nth scale 5))]
               [:th (fmt (nth scale 6))]
-              [:th (fmt (nth scale 7) 1)]
-              ]
+              [:th (fmt (nth scale 7)) [:sub 2]]]
              #_(vec (concat [:tr [:th "Interval"]]
                             (map fmt front)
                             [(fmt tri-tone)]
