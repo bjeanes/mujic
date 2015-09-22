@@ -4,19 +4,7 @@
 #+STARTUP: showeverything
 #+OPTIONS: toc:nil ^:{} creator:nil email:nil date:nil num:nil
 #+PROPERTY: header-args:clojure :session *clj* :cache yes :results value silent :tangle "src/mujic.cljc"
-#+HTML_HEAD_EXTRA: <style>
-#+HTML_HEAD_EXTRA:   body { font-family: "Helvetica Neue", "Helvetica", sans-serif; }
-#+HTML_HEAD_EXTRA:   div#content { max-width: 600px; margin: auto; }
-#+HTML_HEAD_EXTRA:   table { margin: auto; }
-#+HTML_HEAD_EXTRA:   div.org-src-container pre.src {
-#+HTML_HEAD_EXTRA:     /*background-color: #272822;
-#+HTML_HEAD_EXTRA:     color: #fff;*/
-#+HTML_HEAD_EXTRA:     font-weight: 100;
-#+HTML_HEAD_EXTRA:     font-family: "Source Code Pro", "Inconsolata", "Monaco", monospace;
-#+HTML_HEAD_EXTRA:     overflow-x: auto;
-#+HTML_HEAD_EXTRA:     padding-top: 8pt;
-#+HTML_HEAD_EXTRA:   }
-#+HTML_HEAD_EXTRA: </style>
+#+HTML_HEAD_EXTRA: <link rel="stylesheet" href="app.css" type="text/css" />
 #+HTML_HEAD_EXTRA: <script src="mujic.js"></script>
 
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:nil html-preamble:t
