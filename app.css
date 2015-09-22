@@ -1,0 +1,193 @@
+body {
+    font-family: "Helvetica Neue", "Helvetica", sans-serif;
+    color: #333333;
+}
+
+div#content { max-width: 600px; margin: auto; }
+
+table { margin: auto; }
+
+div.org-src-container pre.src {
+  font-weight: 100;
+  font-family: "Source Code Pro", "Inconsolata", "Monaco", monospace;
+  overflow-x: auto;
+}
+
+.org-function-name { color: #006699; }
+.org-keyword { color: #00f; font-weight: 900; }
+.org-doc, .org-comment, .org-comment-delimiter { color: #8d8d84; }
+.org-variable-name { color: #ba36a5; }
+
+.org-clojure-character {
+    color: #008000;
+}
+.org-clojure-interop-method {
+    color: #808080;
+}
+.org-clojure-keyword, .org-highlight-numbers-number {
+    color: #D0372D;
+}
+.org-linum {
+    color: #9A9A9A;
+    background-color: #EDEDED;
+}
+.org-outline-1 {
+    color: #3C3C3C;
+    background-color: #F0F0F0;
+    font-size: 130%;
+    font-weight: bold;
+    text-decoration: overline;
+}
+.org-outline-2 {
+    /* outline-2 */
+    color: #123555;
+    background-color: #E5F4FB;
+    font-weight: bold;
+    text-decoration: overline;
+}
+.org-outline-3 {
+    /* outline-3 */
+    color: #005522;
+    background-color: #EFFFEF;
+    font-weight: bold;
+}
+.org-outline-4 {
+    /* outline-4 */
+    color: #EA6300;
+    font-weight: bold;
+}
+.org-outline-5 {
+    /* outline-5 */
+    color: #E3258D;
+    font-weight: bold;
+}
+.org-outline-6 {
+    /* outline-6 */
+    color: #0077CC;
+    font-weight: bold;
+    font-style: italic;
+}
+.org-outline-7 {
+    /* outline-7 */
+    color: #2EAE2C;
+    font-weight: bold;
+    font-style: italic;
+}
+.org-outline-8 {
+    /* outline-8 */
+    color: #FD8008;
+    font-weight: bold;
+    font-style: italic;
+}
+.org-page-break-lines {
+    /* page-break-lines */
+    color: #8D8D84;
+}
+.org-rainbow-delimiters-depth-1 {
+    /* rainbow-delimiters-depth-1-face */
+    color: #707183;
+}
+.org-rainbow-delimiters-depth-2 {
+    /* rainbow-delimiters-depth-2-face */
+    color: #7388D6;
+}
+.org-rainbow-delimiters-depth-3 {
+    /* rainbow-delimiters-depth-3-face */
+    color: #909183;
+}
+.org-rainbow-delimiters-depth-4 {
+    /* rainbow-delimiters-depth-4-face */
+    color: #709870;
+}
+.org-rainbow-delimiters-depth-5 {
+    /* rainbow-delimiters-depth-5-face */
+    color: #907373;
+}
+.org-rainbow-delimiters-depth-6 {
+    /* rainbow-delimiters-depth-6-face */
+    color: #6276BA;
+}
+.org-rainbow-delimiters-depth-7 {
+    /* rainbow-delimiters-depth-7-face */
+    color: #858580;
+}
+.org-rainbow-delimiters-depth-8 {
+    /* rainbow-delimiters-depth-8-face */
+    color: #80A880;
+}
+.org-rainbow-delimiters-depth-9 {
+    /* rainbow-delimiters-depth-9-face */
+    color: #887070;
+}
+.org-rainbow-delimiters-mismatched {
+    /* rainbow-delimiters-mismatched-face */
+    background-color: #FFDCDC;
+    text-decoration: underline;
+}
+.org-rainbow-delimiters-unmatched {
+    /* rainbow-delimiters-unmatched-face */
+    background-color: #FFDCDC;
+    text-decoration: underline;
+}
+.org-term {
+    /* term */
+    color: #333333;
+    background-color: #FFFFFF;
+}
+.org-term-bold {
+    /* term-bold */
+    font-weight: bold;
+}
+.org-term-color-black {
+    /* term-color-black */
+    color: #000000;
+    background-color: #000000;
+}
+.org-term-color-blue {
+    /* term-color-blue */
+    color: #0000ee;
+    background-color: #0000ee;
+}
+.org-term-color-cyan {
+    /* term-color-cyan */
+    color: #00cdcd;
+    background-color: #00cdcd;
+}
+.org-term-color-green {
+    /* term-color-green */
+    color: #00cd00;
+    background-color: #00cd00;
+}
+.org-term-color-magenta {
+    /* term-color-magenta */
+    color: #cd00cd;
+    background-color: #cd00cd;
+}
+.org-term-color-red {
+    /* term-color-red */
+    color: #cd0000;
+    background-color: #cd0000;
+}
+.org-term-color-white {
+    /* term-color-white */
+    color: #ffffff;
+    background-color: #ffffff;
+}
+.org-term-color-yellow {
+    /* term-color-yellow */
+    color: #cdcd00;
+    background-color: #cdcd00;
+}
+.org-term-underline {
+    /* term-underline */
+    text-decoration: underline;
+}
+a {
+    color: inherit;
+    background-color: inherit;
+    font: inherit;
+    text-decoration: inherit;
+}
+a:hover {
+    text-decoration: underline;
+}
