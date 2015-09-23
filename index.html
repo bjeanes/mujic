@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<!-- 2015-09-22 Tue 19:37 -->
+<!-- 2015-09-22 Tue 20:24 -->
 <meta  charset="utf-8">
 <meta  name="viewport" content="width=device-width, initial-scale=1">
 <title>Mujic: Learning Music Theory With Clojure</title>
@@ -103,8 +103,8 @@ usually defined in terms of number of semitone steps:
 
 <span class="org-comment-delimiter">;; </span><span class="org-comment">just a few common scales will do for now</span>
 <span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">def</span> <span class="org-variable-name">scales</span> <span class="org-rainbow-delimiters-depth-2">{</span><span class="org-clojure-keyword">:major</span>          <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-constant">W</span> <span class="org-constant">W</span> h <span class="org-constant">W</span> <span class="org-constant">W</span> <span class="org-constant">W</span> h<span class="org-rainbow-delimiters-depth-3">]</span>
-             <span class="org-clojure-keyword">:minor/natural</span>  <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-constant">W</span> h <span class="org-constant">W</span> <span class="org-constant">W</span> h <span class="org-constant">W</span> <span class="org-constant">W</span><span class="org-rainbow-delimiters-depth-3">]</span>
-             <span class="org-clojure-keyword">:minor/harmonic</span> <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-constant">W</span> h <span class="org-constant">W</span> <span class="org-constant">W</span> h <span class="org-type">Wh</span> h<span class="org-rainbow-delimiters-depth-3">]</span><span class="org-rainbow-delimiters-depth-2">}</span><span class="org-rainbow-delimiters-depth-1">)</span>
+             <span class="org-clojure-keyword">:minor|natural</span>  <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-constant">W</span> h <span class="org-constant">W</span> <span class="org-constant">W</span> h <span class="org-constant">W</span> <span class="org-constant">W</span><span class="org-rainbow-delimiters-depth-3">]</span>
+             <span class="org-clojure-keyword">:minor|harmonic</span> <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-constant">W</span> h <span class="org-constant">W</span> <span class="org-constant">W</span> h <span class="org-type">Wh</span> h<span class="org-rainbow-delimiters-depth-3">]</span><span class="org-rainbow-delimiters-depth-2">}</span><span class="org-rainbow-delimiters-depth-1">)</span>
 </pre>
 </div>
 
@@ -203,7 +203,7 @@ a root:
 
 <div class="org-src-container">
 
-<pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">(</span>take-nths <span class="org-rainbow-delimiters-depth-2">(</span>scales <span class="org-clojure-keyword">:minor/natural</span><span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">(</span>note-series <span class="org-clojure-keyword">:A</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+<pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">(</span>take-nths <span class="org-rainbow-delimiters-depth-2">(</span>scales <span class="org-clojure-keyword">:minor|natural</span><span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">(</span>note-series <span class="org-clojure-keyword">:A</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 <span class="org-comment-delimiter">;;</span><span class="org-comment">=&gt; (#{:A} #{:B} #{:C} #{:D} #{:E} #{:F} #{:G} #{:A})</span>
 </pre>
 </div>
@@ -265,8 +265,8 @@ feels like a beautiful musical property&#x2014;one I'll likely remember:
 <span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">def</span> <span class="org-variable-name">chords</span>
   <span class="org-rainbow-delimiters-depth-2">{</span><span class="org-clojure-keyword">:M</span>  <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-clojure-keyword">:major</span>         <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-highlight-numbers-number">1</span> <span class="org-highlight-numbers-number">3</span> <span class="org-highlight-numbers-number">5</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">]</span>
    <span class="org-clojure-keyword">:M7</span> <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-clojure-keyword">:major</span>         <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-highlight-numbers-number">1</span> <span class="org-highlight-numbers-number">3</span> <span class="org-highlight-numbers-number">5</span> <span class="org-highlight-numbers-number">7</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">]</span>
-   <span class="org-clojure-keyword">:m</span>  <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-clojure-keyword">:minor/natural</span> <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-highlight-numbers-number">1</span> <span class="org-highlight-numbers-number">3</span> <span class="org-highlight-numbers-number">5</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">]</span>
-   <span class="org-clojure-keyword">:m7</span> <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-clojure-keyword">:minor/natural</span> <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-highlight-numbers-number">1</span> <span class="org-highlight-numbers-number">3</span> <span class="org-highlight-numbers-number">5</span> <span class="org-highlight-numbers-number">7</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">]</span><span class="org-rainbow-delimiters-depth-2">}</span><span class="org-rainbow-delimiters-depth-1">)</span>
+   <span class="org-clojure-keyword">:m</span>  <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-clojure-keyword">:minor|natural</span> <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-highlight-numbers-number">1</span> <span class="org-highlight-numbers-number">3</span> <span class="org-highlight-numbers-number">5</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">]</span>
+   <span class="org-clojure-keyword">:m7</span> <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-clojure-keyword">:minor|natural</span> <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-highlight-numbers-number">1</span> <span class="org-highlight-numbers-number">3</span> <span class="org-highlight-numbers-number">5</span> <span class="org-highlight-numbers-number">7</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">]</span><span class="org-rainbow-delimiters-depth-2">}</span><span class="org-rainbow-delimiters-depth-1">)</span>
 </pre>
 </div>
 
@@ -328,10 +328,10 @@ chord:
 <span class="org-rainbow-delimiters-depth-1">(</span>scale-degrees <span class="org-clojure-keyword">:C</span> <span class="org-clojure-keyword">:major</span><span class="org-rainbow-delimiters-depth-1">)</span>
 <span class="org-comment-delimiter">;;</span><span class="org-comment">=&gt; ((1 :C) (2 :D) (3 :E) (4 :F) (5 :G) (6 :A) (7 :B) (8 :C))</span>
 
-<span class="org-rainbow-delimiters-depth-1">(</span>scale-degrees <span class="org-clojure-keyword">:C</span> <span class="org-clojure-keyword">:minor/natural</span><span class="org-rainbow-delimiters-depth-1">)</span>
+<span class="org-rainbow-delimiters-depth-1">(</span>scale-degrees <span class="org-clojure-keyword">:C</span> <span class="org-clojure-keyword">:minor|natural</span><span class="org-rainbow-delimiters-depth-1">)</span>
 <span class="org-comment-delimiter">;;</span><span class="org-comment">=&gt; ((1 :C) (2 :D) (3 :E&#9837;) (4 :F) (5 :G) (6 :A&#9837;) (7 :B&#9837;) (8 :C))</span>
 
-<span class="org-rainbow-delimiters-depth-1">(</span>scale-degrees <span class="org-clojure-keyword">:C</span> <span class="org-clojure-keyword">:minor/harmonic</span><span class="org-rainbow-delimiters-depth-1">)</span>
+<span class="org-rainbow-delimiters-depth-1">(</span>scale-degrees <span class="org-clojure-keyword">:C</span> <span class="org-clojure-keyword">:minor|harmonic</span><span class="org-rainbow-delimiters-depth-1">)</span>
 <span class="org-comment-delimiter">;;</span><span class="org-comment">=&gt; ((1 :C) (2 :D) (3 :E&#9837;) (4 :F) (5 :G) (6 :A&#9837;) (7 :B) (8 :C))</span>
 </pre>
 </div>
@@ -345,9 +345,9 @@ an <b>A</b>, so I'll add that to my defined scales:
 <div class="org-src-container">
 
 <pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">def</span> <span class="org-variable-name">scales</span> <span class="org-rainbow-delimiters-depth-2">{</span><span class="org-clojure-keyword">:major</span>          <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-constant">W</span> <span class="org-constant">W</span> h <span class="org-constant">W</span> <span class="org-constant">W</span> <span class="org-constant">W</span> h<span class="org-rainbow-delimiters-depth-3">]</span>
-             <span class="org-clojure-keyword">:minor/natural</span>  <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-constant">W</span> h <span class="org-constant">W</span> <span class="org-constant">W</span> h <span class="org-constant">W</span> <span class="org-constant">W</span><span class="org-rainbow-delimiters-depth-3">]</span>
-             <span class="org-clojure-keyword">:minor/harmonic</span> <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-constant">W</span> h <span class="org-constant">W</span> <span class="org-constant">W</span> h <span class="org-type">Wh</span> h<span class="org-rainbow-delimiters-depth-3">]</span>
-             <span class="org-clojure-keyword">:minor/melodic</span>  <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-constant">W</span> h <span class="org-constant">W</span> <span class="org-constant">W</span> <span class="org-constant">W</span> <span class="org-constant">W</span> h<span class="org-rainbow-delimiters-depth-3">]</span><span class="org-rainbow-delimiters-depth-2">}</span><span class="org-rainbow-delimiters-depth-1">)</span>
+             <span class="org-clojure-keyword">:minor|natural</span>  <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-constant">W</span> h <span class="org-constant">W</span> <span class="org-constant">W</span> h <span class="org-constant">W</span> <span class="org-constant">W</span><span class="org-rainbow-delimiters-depth-3">]</span>
+             <span class="org-clojure-keyword">:minor|harmonic</span> <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-constant">W</span> h <span class="org-constant">W</span> <span class="org-constant">W</span> h <span class="org-type">Wh</span> h<span class="org-rainbow-delimiters-depth-3">]</span>
+             <span class="org-clojure-keyword">:minor|melodic</span>  <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-constant">W</span> h <span class="org-constant">W</span> <span class="org-constant">W</span> <span class="org-constant">W</span> <span class="org-constant">W</span> h<span class="org-rainbow-delimiters-depth-3">]</span><span class="org-rainbow-delimiters-depth-2">}</span><span class="org-rainbow-delimiters-depth-1">)</span>
 </pre>
 </div>
 
@@ -364,7 +364,7 @@ it as a normal scale. Here it is, compared to the major:
 <pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">(</span>scale-degrees <span class="org-clojure-keyword">:C</span> <span class="org-clojure-keyword">:major</span><span class="org-rainbow-delimiters-depth-1">)</span>
 <span class="org-comment-delimiter">;;</span><span class="org-comment">=&gt; ((1 :C) (2 :D) (3 :E) (4 :F) (5 :G) (6 :A) (7 :B) (8 :C))</span>
 
-<span class="org-rainbow-delimiters-depth-1">(</span>scale-degrees <span class="org-clojure-keyword">:C</span> <span class="org-clojure-keyword">:minor/melodic</span><span class="org-rainbow-delimiters-depth-1">)</span>
+<span class="org-rainbow-delimiters-depth-1">(</span>scale-degrees <span class="org-clojure-keyword">:C</span> <span class="org-clojure-keyword">:minor|melodic</span><span class="org-rainbow-delimiters-depth-1">)</span>
 <span class="org-comment-delimiter">;;</span><span class="org-comment">=&gt; ((1 :C) (2 :D) (3 :E&#9837;) (4 :F) (5 :G) (6 :A) (7 :B) (8 :C))</span>
 </pre>
 </div>
@@ -379,17 +379,17 @@ add the <b>m6</b> chord to the chord definitions:
 <pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">def</span> <span class="org-variable-name">chords</span>
   <span class="org-rainbow-delimiters-depth-2">{</span><span class="org-clojure-keyword">:M</span>  <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-clojure-keyword">:major</span>         <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-highlight-numbers-number">1</span> <span class="org-highlight-numbers-number">3</span> <span class="org-highlight-numbers-number">5</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">]</span>
    <span class="org-clojure-keyword">:M7</span> <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-clojure-keyword">:major</span>         <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-highlight-numbers-number">1</span> <span class="org-highlight-numbers-number">3</span> <span class="org-highlight-numbers-number">5</span> <span class="org-highlight-numbers-number">7</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">]</span>
-   <span class="org-clojure-keyword">:m</span>  <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-clojure-keyword">:minor/natural</span> <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-highlight-numbers-number">1</span> <span class="org-highlight-numbers-number">3</span> <span class="org-highlight-numbers-number">5</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">]</span>
-   <span class="org-clojure-keyword">:m7</span> <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-clojure-keyword">:minor/natural</span> <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-highlight-numbers-number">1</span> <span class="org-highlight-numbers-number">3</span> <span class="org-highlight-numbers-number">5</span> <span class="org-highlight-numbers-number">7</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">]</span>
+   <span class="org-clojure-keyword">:m</span>  <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-clojure-keyword">:minor|natural</span> <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-highlight-numbers-number">1</span> <span class="org-highlight-numbers-number">3</span> <span class="org-highlight-numbers-number">5</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">]</span>
+   <span class="org-clojure-keyword">:m7</span> <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-clojure-keyword">:minor|natural</span> <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-highlight-numbers-number">1</span> <span class="org-highlight-numbers-number">3</span> <span class="org-highlight-numbers-number">5</span> <span class="org-highlight-numbers-number">7</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">]</span>
    <span class="org-comment-delimiter">;; </span><span class="org-comment">...</span>
-   <span class="org-clojure-keyword">:m6</span> <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-clojure-keyword">:minor/melodic</span> <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-highlight-numbers-number">1</span> <span class="org-highlight-numbers-number">3</span> <span class="org-highlight-numbers-number">5</span> <span class="org-highlight-numbers-number">6</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">]</span><span class="org-rainbow-delimiters-depth-2">}</span><span class="org-rainbow-delimiters-depth-1">)</span>
+   <span class="org-clojure-keyword">:m6</span> <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-clojure-keyword">:minor|melodic</span> <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-highlight-numbers-number">1</span> <span class="org-highlight-numbers-number">3</span> <span class="org-highlight-numbers-number">5</span> <span class="org-highlight-numbers-number">6</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">]</span><span class="org-rainbow-delimiters-depth-2">}</span><span class="org-rainbow-delimiters-depth-1">)</span>
 </pre>
 </div>
 
 <p>
-The next chord that I struggled with is the <b>M7#11</b>. The 11th degree of a
+The next chord that I struggled with is the <b>M7♯11</b>. The 11th degree of a
 <a href="https://en.wikipedia.org/wiki/Diatonic_scale">diatonic scale</a> (7-note scales) is the same note as the 4th, just an octave
-higher. So to tackle a <b>M7#11</b> chord, I need a scale which has a <b>♯4</b> in it. I
+higher. So to tackle a <b>M7♯11</b> chord, I need a scale which has a <b>♯4</b> in it. I
 sat down at the piano and played a major scale with a sharpened 4th to see how
 it sounded. It was nice! A combination of my foggy memory of <a href="https://en.wikibooks.org/wiki/Music_Theory/Modes">modes</a> and some
 Wikipedia spelunking led me to the <a href="https://en.wikipedia.org/wiki/Lydian_mode">lydian mode</a>, which is a major scale with a
@@ -454,19 +454,19 @@ relationship:
 
 <pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">def</span> <span class="org-variable-name">scales</span>
   <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-keyword">let</span> <span class="org-rainbow-delimiters-depth-3">[</span>scales <span class="org-rainbow-delimiters-depth-4">{</span><span class="org-clojure-keyword">:major</span>          <span class="org-rainbow-delimiters-depth-5">[</span><span class="org-constant">W</span> <span class="org-constant">W</span> h <span class="org-constant">W</span> <span class="org-constant">W</span> <span class="org-constant">W</span> h<span class="org-rainbow-delimiters-depth-5">]</span>
-                <span class="org-clojure-keyword">:minor/natural</span>  <span class="org-rainbow-delimiters-depth-5">[</span><span class="org-constant">W</span> h <span class="org-constant">W</span> <span class="org-constant">W</span> h <span class="org-constant">W</span> <span class="org-constant">W</span><span class="org-rainbow-delimiters-depth-5">]</span>
-                <span class="org-clojure-keyword">:minor/harmonic</span> <span class="org-rainbow-delimiters-depth-5">[</span><span class="org-constant">W</span> h <span class="org-constant">W</span> <span class="org-constant">W</span> h <span class="org-type">Wh</span> h<span class="org-rainbow-delimiters-depth-5">]</span>
-                <span class="org-clojure-keyword">:minor/melodic</span>  <span class="org-rainbow-delimiters-depth-5">[</span><span class="org-constant">W</span> h <span class="org-constant">W</span> <span class="org-constant">W</span> <span class="org-constant">W</span> <span class="org-constant">W</span> h<span class="org-rainbow-delimiters-depth-5">]</span><span class="org-rainbow-delimiters-depth-4">}</span>
-        modes <span class="org-rainbow-delimiters-depth-4">(</span>zipmap <span class="org-rainbow-delimiters-depth-5">[</span><span class="org-clojure-keyword">:mode/ionian</span> <span class="org-clojure-keyword">:mode/dorian</span> <span class="org-clojure-keyword">:mode/phrygian</span>
-                       <span class="org-clojure-keyword">:mode/lydian</span> <span class="org-clojure-keyword">:mode/mixolydian</span> <span class="org-clojure-keyword">:mode/aeolian</span>
-                       <span class="org-clojure-keyword">:mode/locrian</span><span class="org-rainbow-delimiters-depth-5">]</span>
+                <span class="org-clojure-keyword">:minor|natural</span>  <span class="org-rainbow-delimiters-depth-5">[</span><span class="org-constant">W</span> h <span class="org-constant">W</span> <span class="org-constant">W</span> h <span class="org-constant">W</span> <span class="org-constant">W</span><span class="org-rainbow-delimiters-depth-5">]</span>
+                <span class="org-clojure-keyword">:minor|harmonic</span> <span class="org-rainbow-delimiters-depth-5">[</span><span class="org-constant">W</span> h <span class="org-constant">W</span> <span class="org-constant">W</span> h <span class="org-type">Wh</span> h<span class="org-rainbow-delimiters-depth-5">]</span>
+                <span class="org-clojure-keyword">:minor|melodic</span>  <span class="org-rainbow-delimiters-depth-5">[</span><span class="org-constant">W</span> h <span class="org-constant">W</span> <span class="org-constant">W</span> <span class="org-constant">W</span> <span class="org-constant">W</span> h<span class="org-rainbow-delimiters-depth-5">]</span><span class="org-rainbow-delimiters-depth-4">}</span>
+        modes <span class="org-rainbow-delimiters-depth-4">(</span>zipmap <span class="org-rainbow-delimiters-depth-5">[</span><span class="org-clojure-keyword">:mode|ionian</span> <span class="org-clojure-keyword">:mode|dorian</span> <span class="org-clojure-keyword">:mode|phrygian</span>
+                       <span class="org-clojure-keyword">:mode|lydian</span> <span class="org-clojure-keyword">:mode|mixolydian</span> <span class="org-clojure-keyword">:mode|aeolian</span>
+                       <span class="org-clojure-keyword">:mode|locrian</span><span class="org-rainbow-delimiters-depth-5">]</span>
                       <span class="org-rainbow-delimiters-depth-5">(</span>rotations <span class="org-rainbow-delimiters-depth-6">(</span>scales <span class="org-clojure-keyword">:major</span><span class="org-rainbow-delimiters-depth-6">)</span><span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">]</span>
     <span class="org-rainbow-delimiters-depth-3">(</span>merge scales modes<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 </pre>
 </div>
 
 <p>
-Astute readers might realise that the <code>:minor/natural</code> and <code>:mode/aeolian</code>
+Astute readers might realise that the <code>:minor|natural</code> and <code>:mode|aeolian</code>
 actually have the same associated definition now. The natural minor is the 6th
 degree mode of the major scale. It's rewarding to have read about that and then
 see it accidentally fall out of the model I've created. That relationship might
@@ -474,7 +474,7 @@ actually stick in my head now.
 </p>
 
 <p>
-All of that work was so that I could encode the <b>M7#11</b> chord, so I'll do that
+All of that work was so that I could encode the <b>M7♯11</b> chord, so I'll do that
 finally:
 </p>
 
@@ -483,11 +483,11 @@ finally:
 <pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">def</span> <span class="org-variable-name">chords</span>
   <span class="org-rainbow-delimiters-depth-2">{</span><span class="org-clojure-keyword">:M</span>     <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-clojure-keyword">:major</span>         <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-highlight-numbers-number">1</span> <span class="org-highlight-numbers-number">3</span> <span class="org-highlight-numbers-number">5</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">]</span>
    <span class="org-clojure-keyword">:M7</span>    <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-clojure-keyword">:major</span>         <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-highlight-numbers-number">1</span> <span class="org-highlight-numbers-number">3</span> <span class="org-highlight-numbers-number">5</span> <span class="org-highlight-numbers-number">7</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">]</span>
-   <span class="org-clojure-keyword">:m</span>     <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-clojure-keyword">:minor/natural</span> <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-highlight-numbers-number">1</span> <span class="org-highlight-numbers-number">3</span> <span class="org-highlight-numbers-number">5</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">]</span>
-   <span class="org-clojure-keyword">:m7</span>    <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-clojure-keyword">:minor/natural</span> <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-highlight-numbers-number">1</span> <span class="org-highlight-numbers-number">3</span> <span class="org-highlight-numbers-number">5</span> <span class="org-highlight-numbers-number">7</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">]</span>
+   <span class="org-clojure-keyword">:m</span>     <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-clojure-keyword">:minor|natural</span> <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-highlight-numbers-number">1</span> <span class="org-highlight-numbers-number">3</span> <span class="org-highlight-numbers-number">5</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">]</span>
+   <span class="org-clojure-keyword">:m7</span>    <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-clojure-keyword">:minor|natural</span> <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-highlight-numbers-number">1</span> <span class="org-highlight-numbers-number">3</span> <span class="org-highlight-numbers-number">5</span> <span class="org-highlight-numbers-number">7</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">]</span>
    <span class="org-comment-delimiter">;; </span><span class="org-comment">...</span>
-   <span class="org-clojure-keyword">:m6</span>    <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-clojure-keyword">:minor/melodic</span> <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-highlight-numbers-number">1</span> <span class="org-highlight-numbers-number">3</span> <span class="org-highlight-numbers-number">5</span> <span class="org-highlight-numbers-number">6</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">]</span>
-   <span class="org-clojure-keyword">:M7#11</span> <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-clojure-keyword">:mode/lydian</span>   <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-highlight-numbers-number">1</span> <span class="org-highlight-numbers-number">3</span> <span class="org-highlight-numbers-number">5</span> <span class="org-highlight-numbers-number">7</span> <span class="org-highlight-numbers-number">11</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">]</span><span class="org-rainbow-delimiters-depth-2">}</span><span class="org-rainbow-delimiters-depth-1">)</span>
+   <span class="org-clojure-keyword">:m6</span>    <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-clojure-keyword">:minor|melodic</span> <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-highlight-numbers-number">1</span> <span class="org-highlight-numbers-number">3</span> <span class="org-highlight-numbers-number">5</span> <span class="org-highlight-numbers-number">6</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">]</span>
+   <span class="org-clojure-keyword">:M7&#9839;11</span> <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-clojure-keyword">:mode|lydian</span>   <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-highlight-numbers-number">1</span> <span class="org-highlight-numbers-number">3</span> <span class="org-highlight-numbers-number">5</span> <span class="org-highlight-numbers-number">7</span> <span class="org-highlight-numbers-number">11</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">]</span><span class="org-rainbow-delimiters-depth-2">}</span><span class="org-rainbow-delimiters-depth-1">)</span>
 </pre>
 </div>
 
@@ -593,49 +593,31 @@ repeats the pattern of qualities) for us to think about.
 
 <colgroup>
 <col  class="org-left">
-</colgroup>
 
-<colgroup>
 <col  class="org-left">
-</colgroup>
 
-<colgroup>
 <col  class="org-left">
 
 <col  class="org-right">
-</colgroup>
 
-<colgroup>
 <col  class="org-left">
 
 <col  class="org-right">
-</colgroup>
 
-<colgroup>
 <col  class="org-left">
-</colgroup>
 
-<colgroup>
 <col  class="org-left">
-</colgroup>
 
-<colgroup>
 <col  class="org-left">
-</colgroup>
 
-<colgroup>
 <col  class="org-left">
 
 <col  class="org-right">
-</colgroup>
 
-<colgroup>
 <col  class="org-left">
 
 <col  class="org-right">
-</colgroup>
 
-<colgroup>
 <col  class="org-left">
 </colgroup>
 <thead>
@@ -1052,7 +1034,7 @@ with named intervals, so that's next:
    <span class="org-clojure-keyword">:7</span>       <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-constant">R</span> <span class="org-type">M3</span> <span class="org-type">P5</span> m7<span class="org-rainbow-delimiters-depth-3">]</span> <span class="org-comment">; major/minor (major triad + minor 7th)    "dominant 7th"</span>
    <span class="org-clojure-keyword">:M7</span>      <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-constant">R</span> <span class="org-type">M3</span> <span class="org-type">P5</span> <span class="org-type">M7</span><span class="org-rainbow-delimiters-depth-3">]</span> <span class="org-comment">; major/major (major triad + major 7th)    "major 7th"</span>
    <span class="org-clojure-keyword">:m7</span>      <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-constant">R</span> m3 <span class="org-type">P5</span> m7<span class="org-rainbow-delimiters-depth-3">]</span> <span class="org-comment">; minor/minor (minor triad + minor 7th)    "minor 7th"</span>
-   <span class="org-clojure-keyword">:m/M7</span>    <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-constant">R</span> m3 <span class="org-type">P5</span> <span class="org-type">M7</span><span class="org-rainbow-delimiters-depth-3">]</span> <span class="org-comment">; minor/major (minor triad + major 7th)</span>
+   <span class="org-clojure-keyword">:m|M7</span>    <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-constant">R</span> m3 <span class="org-type">P5</span> <span class="org-type">M7</span><span class="org-rainbow-delimiters-depth-3">]</span> <span class="org-comment">; minor/major (minor triad + major 7th)</span>
    <span class="org-rainbow-delimiters-depth-2">}</span><span class="org-rainbow-delimiters-depth-1">)</span>
 </pre>
 </div>
@@ -1093,11 +1075,11 @@ First, I'll need to convert the scales to absolute intervals:
 
 <span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">def</span> <span class="org-variable-name">interval-scales</span> <span class="org-rainbow-delimiters-depth-2">(</span>map-values <span class="org-rainbow-delimiters-depth-3">(</span>partial reductions + <span class="org-highlight-numbers-number">0</span><span class="org-rainbow-delimiters-depth-3">)</span> scales<span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
-interval-scales <span class="org-comment">;=&gt; {:mode/aeolian (0 2 3 5 7 8 10 12), ...}</span>
+interval-scales <span class="org-comment">;=&gt; {:mode|aeolian (0 2 3 5 7 8 10 12), ...}</span>
 
 <span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">def</span> <span class="org-variable-name">named-interval-scales</span> <span class="org-rainbow-delimiters-depth-2">(</span>map-values <span class="org-rainbow-delimiters-depth-3">(</span>partial map interval-names<span class="org-rainbow-delimiters-depth-3">)</span> interval-scales<span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
-named-interval-scales <span class="org-comment">;=&gt; {:mode/aeolian (P1 M2 m3 P4 P5 m6 m7 P8), ...}</span>
+named-interval-scales <span class="org-comment">;=&gt; {:mode|aeolian (P1 M2 m3 P4 P5 m6 m7 P8), ...}</span>
 </pre>
 </div>
 
@@ -1138,10 +1120,10 @@ Now, let's find scale representations for a chord!
           <span class="org-rainbow-delimiters-depth-4">[</span>s <span class="org-rainbow-delimiters-depth-5">(</span>map <span class="org-rainbow-delimiters-depth-6">(</span>comp inc #<span class="org-rainbow-delimiters-depth-7">(</span><span class="org-clojure-interop-method">.indexOf</span> ints <span class="org-variable-name">%</span><span class="org-rainbow-delimiters-depth-7">)</span><span class="org-rainbow-delimiters-depth-6">)</span>
                   <span class="org-rainbow-delimiters-depth-6">(</span>chords chord<span class="org-rainbow-delimiters-depth-6">)</span><span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
-<span class="org-rainbow-delimiters-depth-1">(</span>scales-for-chord <span class="org-clojure-keyword">:M</span><span class="org-rainbow-delimiters-depth-1">)</span>    <span class="org-comment">;=&gt; {:mode/ionian (1 3 5), :major (1 3 5) ...}</span>
-<span class="org-rainbow-delimiters-depth-1">(</span>scales-for-chord <span class="org-clojure-keyword">:m</span><span class="org-rainbow-delimiters-depth-1">)</span>    <span class="org-comment">;=&gt; {:mode/aeolian (1 3 5), :minor/natural (1 3 5), ...}</span>
-<span class="org-rainbow-delimiters-depth-1">(</span>scales-for-chord <span class="org-clojure-keyword">:7</span><span class="org-rainbow-delimiters-depth-1">)</span>    <span class="org-comment">;=&gt; {:mode/mixolydian (1 3 5 7)}</span>
-<span class="org-rainbow-delimiters-depth-1">(</span>scales-for-chord <span class="org-clojure-keyword">:m/M7</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-comment">;=&gt; {:minor/melodic (1 3 5 7), :minor/harmonic (1 3 5 7)}</span>
+<span class="org-rainbow-delimiters-depth-1">(</span>scales-for-chord <span class="org-clojure-keyword">:M</span><span class="org-rainbow-delimiters-depth-1">)</span>    <span class="org-comment">;=&gt; {:mode|ionian (1 3 5), :major (1 3 5) ...}</span>
+<span class="org-rainbow-delimiters-depth-1">(</span>scales-for-chord <span class="org-clojure-keyword">:m</span><span class="org-rainbow-delimiters-depth-1">)</span>    <span class="org-comment">;=&gt; {:mode|aeolian (1 3 5), :minor|natural (1 3 5), ...}</span>
+<span class="org-rainbow-delimiters-depth-1">(</span>scales-for-chord <span class="org-clojure-keyword">:7</span><span class="org-rainbow-delimiters-depth-1">)</span>    <span class="org-comment">;=&gt; {:mode|mixolydian (1 3 5 7)}</span>
+<span class="org-rainbow-delimiters-depth-1">(</span>scales-for-chord <span class="org-clojure-keyword">:m|M7</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-comment">;=&gt; {:minor|melodic (1 3 5 7), :minor|harmonic (1 3 5 7)}</span>
 </pre>
 </div>
 
@@ -1157,7 +1139,7 @@ Let's get all the matching scales for all our chords!
                    chords<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
 scale-chords
-<span class="org-comment-delimiter">;;</span><span class="org-comment">=&gt; {:M {:mode/ionian (1 3 5), ...}, :m/M7 {:minor/melodic (1 3 5 7), ...}, ...}</span>
+<span class="org-comment-delimiter">;;</span><span class="org-comment">=&gt; {:M {:mode|ionian (1 3 5), ...}, :m|M7 {:minor|melodic (1 3 5 7), ...}, ...}</span>
 </pre>
 </div>
 </div>
