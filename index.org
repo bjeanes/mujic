@@ -12,9 +12,6 @@
 #+HTML_DOCTYPE: html5
 #+HTML_CONTAINER: div
 
-#+BEGIN_SRC emacs-lisp :exports none :results silent
-#+END_SRC
-
 #+BEGIN_SRC clojure :exports none
   (ns mujic
     (:require [clojure.set :as set]
